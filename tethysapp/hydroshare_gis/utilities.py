@@ -20,6 +20,7 @@ from socket import gethostname
 from subprocess import check_output
 from mimetypes import guess_type
 from logging import getLogger
+from prj_tools import check_crs
 
 
 logger = getLogger('django')
@@ -670,7 +671,7 @@ def get_info_from_nongeneric_res_files(res_id, res_type, res_contents_path):
                         else:
                             if r['crsWasChanged']:
                                 code = r['code']
-                                os.system('gdal_edit.py -a_srs {0} {1}'.format(code, tmp_fpath))
+                                os.system('gdal_edit.py -a_srs EPSG:{0} {1}'.format(code, tmp_fpath))
                             res_fpath = tmp_fpath.replace('tif', 'zip')
                             zip_files(tmp_fpath, res_fpath)
                             break
@@ -807,121 +808,121 @@ def email_admin(subject, traceback=None, custom_msg=None):
     )
 
 
-def check_crs(res_type, fpath):
-    return_obj = {
-        'success': False,
-        'message': None,
-        'code': None,
-        'crsWasChanged': False,
-        'new_wkt': None
-    }
-
-    message_erroneous_proj = 'The file "%s" has erroneous or incomplete projection (coordinate reference system) ' \
-                             'information. An attempt has still been made to display it, though it is likely ' \
-                             'to be spatially incorrect.'
-
-    if res_type == 'RasterResource':
-        gdal_info = check_output('gdalinfo %s' % fpath, shell=True)
-        start = 'Coordinate System is:'
-        length = len(start)
-        end = 'Origin ='
-        if gdal_info.find(start) == -1:
-            return_obj['message'] = message_erroneous_proj
-            return_obj['crsWasChanged'] = True
-            return_obj['code'] = 'EPSG:3857'
-            return_obj['success'] = True
-            return return_obj
-        start_index = gdal_info.find(start) + length
-        end_index = gdal_info.find(end)
-        crs_raw = gdal_info[start_index:end_index]
-        crs = ''.join(crs_raw.split())
-    else:
-        with open(fpath) as f:
-            crs = f.read()
-
-    endpoint = 'http://prj2epsg.org/search.json'
-    params = {
-        'mode': 'wkt',
-        'terms': crs
-    }
-    crs_is_unknown = True
-    flag_unhandled_error = False
-    try:
-        while crs_is_unknown:
-            r = requests.get(endpoint, params=params)
-            if '50' in str(r.status_code):
-                raise Exception
-            elif r.status_code == 200:
-                response = r.json()
-                if 'errors' in response:
-                    errs = response['errors']
-                    if 'Invalid WKT syntax' in errs:
-                        err = errs.split(':')[2]
-                        if err and 'Parameter' in err:
-                            crs_param = err.split('"')[1]
-                            rm_indx_start = crs.find(crs_param)
-                            rm_indx_end = None
-                            sub_str = crs[rm_indx_start:]
-                            counter = 0
-                            check = False
-                            for i, c in enumerate(sub_str):
-                                if c == '[':
-                                    counter += 1
-                                    check = True
-                                elif c == ']':
-                                    counter -= 1
-                                    check = True
-                                if check:
-                                    if counter == 0:
-                                        rm_indx_end = i + rm_indx_start + 1
-                                        break
-                            crs = crs[:rm_indx_start] + crs[rm_indx_end:]
-                            if ',' in crs[:-4]:
-                                i = crs.rfind(',')
-                                crs = crs[:i] + crs[i+1:]
-                            params['terms'] = crs
-                        else:
-                            flag_unhandled_error = True
-                    else:
-                        flag_unhandled_error = True
-                else:
-                    crs_is_unknown = False
-                    codes = response['codes']
-                    # If there are no codes in the result, a match wasn't found. In that case, an attempt will still be
-                    # made to add the layer to GeoServer since this still works in some cases.
-                    if len(codes) != 0:
-                        code = codes[0]['code']
-                        if res_type == 'RasterResource':
-                            if code not in crs:
-                                return_obj['crsWasChanged'] = True
-                            return_obj['code'] = 'EPSG:' + code
-                        else:
-                            r = requests.get(response['codes'][0]['url'])
-                            proj_json = r.json()
-                            raw_wkt = proj_json['wkt']
-                            tmp_list = []
-                            for seg in raw_wkt.split('\n'):
-                                tmp_list.append(seg.strip())
-                            if code not in crs:
-                                return_obj['crsWasChanged'] = True
-                                return_obj['new_wkt'] = ''.join(tmp_list)
-
-                    return_obj['success'] = True
-
-                if flag_unhandled_error:
-                    return_obj['message'] = message_erroneous_proj
-                    return_obj['crsWasChanged'] = True
-                    return_obj['code'] = 'EPSG:3857'
-                    return_obj['success'] = True
-                    break
-            else:
-                params['mode'] = 'keywords'
-                continue
-    except Exception as e:
-        e.message = 'A service that HydroShare GIS depends on currently appears to be down. An app admin has been notified to further investigate.'
-        raise
-
-    return return_obj
+# def check_crs(res_type, fpath):
+#     return_obj = {
+#         'success': False,
+#         'message': None,
+#         'code': None,
+#         'crsWasChanged': False,
+#         'new_wkt': None
+#     }
+#
+#     message_erroneous_proj = 'The file "%s" has erroneous or incomplete projection (coordinate reference system) ' \
+#                              'information. An attempt has still been made to display it, though it is likely ' \
+#                              'to be spatially incorrect.'
+#
+#     if res_type == 'RasterResource':
+#         gdal_info = check_output('gdalinfo %s' % fpath, shell=True)
+#         start = 'Coordinate System is:'
+#         length = len(start)
+#         end = 'Origin ='
+#         if gdal_info.find(start) == -1:
+#             return_obj['message'] = message_erroneous_proj
+#             return_obj['crsWasChanged'] = True
+#             return_obj['code'] = 'EPSG:3857'
+#             return_obj['success'] = True
+#             return return_obj
+#         start_index = gdal_info.find(start) + length
+#         end_index = gdal_info.find(end)
+#         crs_raw = gdal_info[start_index:end_index]
+#         crs = ''.join(crs_raw.split())
+#     else:
+#         with open(fpath) as f:
+#             crs = f.read()
+#
+#     endpoint = 'http://prj2epsg.org/search.json'
+#     params = {
+#         'mode': 'wkt',
+#         'terms': crs
+#     }
+#     crs_is_unknown = True
+#     flag_unhandled_error = False
+#     try:
+#         while crs_is_unknown:
+#             r = requests.get(endpoint, params=params)
+#             if '50' in str(r.status_code):
+#                 raise Exception
+#             elif r.status_code == 200:
+#                 response = r.json()
+#                 if 'errors' in response:
+#                     errs = response['errors']
+#                     if 'Invalid WKT syntax' in errs:
+#                         err = errs.split(':')[2]
+#                         if err and 'Parameter' in err:
+#                             crs_param = err.split('"')[1]
+#                             rm_indx_start = crs.find(crs_param)
+#                             rm_indx_end = None
+#                             sub_str = crs[rm_indx_start:]
+#                             counter = 0
+#                             check = False
+#                             for i, c in enumerate(sub_str):
+#                                 if c == '[':
+#                                     counter += 1
+#                                     check = True
+#                                 elif c == ']':
+#                                     counter -= 1
+#                                     check = True
+#                                 if check:
+#                                     if counter == 0:
+#                                         rm_indx_end = i + rm_indx_start + 1
+#                                         break
+#                             crs = crs[:rm_indx_start] + crs[rm_indx_end:]
+#                             if ',' in crs[:-4]:
+#                                 i = crs.rfind(',')
+#                                 crs = crs[:i] + crs[i+1:]
+#                             params['terms'] = crs
+#                         else:
+#                             flag_unhandled_error = True
+#                     else:
+#                         flag_unhandled_error = True
+#                 else:
+#                     crs_is_unknown = False
+#                     codes = response['codes']
+#                     # If there are no codes in the result, a match wasn't found. In that case, an attempt will still be
+#                     # made to add the layer to GeoServer since this still works in some cases.
+#                     if len(codes) != 0:
+#                         code = codes[0]['code']
+#                         if res_type == 'RasterResource':
+#                             if code not in crs:
+#                                 return_obj['crsWasChanged'] = True
+#                             return_obj['code'] = 'EPSG:' + code
+#                         else:
+#                             r = requests.get(response['codes'][0]['url'])
+#                             proj_json = r.json()
+#                             raw_wkt = proj_json['wkt']
+#                             tmp_list = []
+#                             for seg in raw_wkt.split('\n'):
+#                                 tmp_list.append(seg.strip())
+#                             if code not in crs:
+#                                 return_obj['crsWasChanged'] = True
+#                                 return_obj['new_wkt'] = ''.join(tmp_list)
+#
+#                     return_obj['success'] = True
+#
+#                 if flag_unhandled_error:
+#                     return_obj['message'] = message_erroneous_proj
+#                     return_obj['crsWasChanged'] = True
+#                     return_obj['code'] = 'EPSG:3857'
+#                     return_obj['success'] = True
+#                     break
+#             else:
+#                 params['mode'] = 'keywords'
+#                 continue
+#     except Exception as e:
+#         e.message = 'A service that HydroShare GIS depends on currently appears to be down. An app admin has been notified to further investigate.'
+#         raise
+#
+#     return return_obj
 
 
 def delete_tempfiles(username):
@@ -1507,7 +1508,7 @@ def get_info_from_generic_res_file(hs, res_id, res_file_name, hs_tempdir, file_i
             else:
                 if r['crsWasChanged']:
                     code = r['code']
-                    os.system('gdal_edit.py -a_srs {0} {1}'.format(code, new_fpath))
+                    os.system('gdal_edit.py -a_srs EPSG:{0} {1}'.format(code, new_fpath))
                 res_fpath = new_fpath.replace('tif', 'zip')
                 zip_files(new_fpath, res_fpath)
         else:
