@@ -69,14 +69,16 @@ def check_crs(res_type, fpath):
         raster_dataset = gdal.Open(fpath, gdalconst.GA_ReadOnly)
         prj_wkt_in = raster_dataset.GetProjection()
 
-    elif res_type.lower() == "geographicfeatureresource":
-        prj_wkt_in = open(fpath, 'r').readlines()
+    # elif res_type.lower() == "geographicfeatureresource":
+    #     prj_wkt_in = open(fpath, 'r').readlines()
 
+    # else:
+    #     return_obj["message"] = "Not Supported res_type: %s"
+    #     return return_obj
     else:
-        return_obj["message"] = "Not Supported res_type"
-        return return_obj
+        prj_wkt_in = open(fpath, 'r').readlines()
+    logger.debug("Trying to match {0}: {1}". format(fpath, prj_wkt_in))
 
-    logger.debug("Trying to match {0}: {1}". format(fpath ,prj_wkt_in))
     hit_one = False
     for prj_type in ["esri", "wkt", "proj4"]:
         matched_list, msg = _find_matched_epsg(prj_wkt_in, str_type=prj_type)
@@ -97,8 +99,8 @@ def check_crs(res_type, fpath):
     return return_obj
 
 
-# if __name__ == "__main__":
-#
-#     check_crs("rasterresource", "/home/drew/Downloads/dr_srtm_30_3857.tif")
-#     check_crs("rasterresource", "/home/drew/Downloads/logan.tif")
-#     print _find_matched_epsg(4326, str_type="epsg")
+if __name__ == "__main__":
+
+    print check_crs("rasterresource", "/home/drew/Downloads/dr_srtm_30_3857.tif")
+    print check_crs("rasterresource", "/home/drew/Downloads/logan.tif")
+    print _find_matched_epsg(4326, str_type="epsg")
