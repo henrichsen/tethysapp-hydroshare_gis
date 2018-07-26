@@ -1,630 +1,636 @@
-/*****************************************************/
-/*            TETHYS BASE MODIFICATIONS              */
-#app-content-wrapper {
-    overflow-y: hidden;
-}
-#app-content-wrapper #app-content {
-    padding-bottom: 0;
-}
-#inner-app-content {
-    padding: 0;
-}
-#app-actions {
-    display: none;
-}
-.exit-button {
-    cursor: pointer;
-}
-/*****************************************************/
+/**
+* HydroShare GIS
+* @author Kenneth Lippold
+* @version 2.0
+*/
 
-/*****************************************************/
-/*                GENERAL NAV BAR                    */
-#btn-app-help {
-    margin-left: 100px;
+
+/* ============================================================== */
+/* ====================== Tethys Overrides ====================== */
+/* ============================================================== */
+
+
+/* ::::::::::::::::::::::: Tethys Map View :::::::::::::::::::::: */
+
+#app-content {
+    height: 100% !important;
+    padding-bottom: 0 !important;
 }
-.dropdown {
-    display: inline-block;
+
+#inner-app-content {
+    padding: 0 !important;
 }
-#dropdownExportAs {
-    min-width: inherit;
+
+#app-actions {
+    display:none !important;
 }
-#dropdown-export:hover {
-    background-color: #949494;
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* :::::::::::::::::: Tethys Navigation Content ::::::::::::::::: */
+
+/* Removes Navigation Pane Padding and Adds Right Border */
+#app-navigation{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow: visible !important;
+    border-right-style: solid !important;
+    border-right-color: #b3b3b3 !important;
+    border-right-width: 1px !important;
+
 }
-#chkbx-show-inset-map {
-    margin: 0 0 0 10px;
+
+/* Allows Navigation to Resize Properly With Window */
+.nav {
+    display: flex !important;
+    flex-direction: column !important;
+    padding-bottom: 0 !important;
 }
-.option-export {
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ============================================================== */
+/* ============================================================== */
+/* ============================================================== */
+
+
+
+
+
+/* ============================================================== */
+/* ======================= Global Styles ======================== */
+/* ============================================================== */
+
+
+/* :::::::::::::::::::: Navigation Scrollbar :::::::::::::::::::: */
+
+/* Scrollbar Width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Scrollbar Track */
+::-webkit-scrollbar-track {
+    background: #cccccc; 
+}
+ 
+/* Scrollbar Handle */
+::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+/* Scrollbar Hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ============================================================== */
+/* ============================================================== */
+/* ============================================================== */
+
+
+
+
+
+/* ============================================================== */
+/* ====================== Navigation Pane ======================= */
+/* ============================================================== */
+
+
+/* :::::::::::::::::: Navigation Pane Selector :::::::::::::::::: */
+
+/* Style the tab navigation container*/
+.nav-pane-tab-selector {
+    overflow: hidden;
+    border: 0px;
+    background-color: #f1f1f1;
+    width: 100%;
+    height: 46px;
+}
+
+/* Style the tab navigation buttons */
+.tab-nav-button {
+    background-color: #D3D3D3;
+    float: left;
+    border: none;
+    outline: none;
     cursor: pointer;
-    padding: 2px;
+    padding: 10px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    width: 50%;
+    height:100%;
 }
-.option-export a {
-    background-color: #dddddd !important;
-    color: black !important;
+
+/* Change background color of tab navigation buttons on hover */
+.nav-pane-tab-selector button:hover {
+    background-color: #F0F0F0;
 }
-.option-export a:hover {
-    background-color: #949494 !important;
+
+/* Style the tab content */
+.nav-tab-content {
+    display: flex;
+    border-top: none;
+    background: lightgray;
+    flex-direction: column;
+    flex-grow: 1;
 }
-.basemap-option {
-    cursor: pointer;
-    padding: 5px;
+
+/* Sets the Initial Active Tab Button Color */
+#nav-pane-workspace-tab-toggle {
+    background-color: #FFFFFF;
 }
-.basemap-option:hover {
-    background-color: darkturquoise;
-    color: white;
-}
-.selected-basemap-option {
-    font-weight: bold;
-}
-.current-basemap-label {
-    font-weight: normal;
-    color: #D3D3D3;
-}
-#beta-feedback-button {
-    bottom: 30px;
-}
-#byu-logo-container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    margin: 10px;
-    overflow-y: visible;
-    height: 60px;
-    width: 150px;
-}
-#byu-logo-container img {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* :::::::::::::::::: Workspace Section Headers ::::::::::::::::: */
+
+.workspace-section-header {
+    overflow: hidden;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-color: #FFFFFF;
+    width: 100%;
     height: 50px;
 }
-#byu-logo-container span {
-    position: absolute;
-    bottom: 0;
-    left: 55px;
-    width: 150px;
-    margin-bottom: 10px;
-    text-align: left;
-    font-size: 12px;
-}
-/*****************************************************/
 
-/*****************************************************/
-/*                 CURRENT LAYERS                    */
-#current-layers {
-    width: 100%;
-    height: 400px;
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* :::::::::::::::::::: Workspace Layer List :::::::::::::::::::: */
+
+.workspace-layer-list {
+    overflow: hidden;
+    padding: 3px;
     background-color: #D3D3D3;
+    width: 100%;
     overflow-y: auto;
-}
-#current-layers ul {
-    -webkit-padding-start: 0;
-    -moz-padding-start: 0;
-}
-#current-layers li {
-    position: relative;
-    list-style: none;
-    padding: 5px;
-    cursor: default;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: justify;
-    -webkit-justify-content: space-between;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    -webkit-align-content: center;
-    -ms-flex-line-pack: center;
-    align-content: center;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
-    text-align: left;
-}
-.layer-name {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    max-width: 218px;
-    word-break: break-all;
-}
-.edit-layer-name {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    max-width: 220px;
-    line-height: normal;
-}
-.ui-state-highlight {
-    height: 1.5em;
-    line-height: 1.2em;
-}
-.chkbx-layer {
-    margin: 0 5px 0 0 !important;
-}
-.hmbrgr-div {
-    width: 22px;
-    height: 22px;
-    border-radius: 2px;
-}
-.hmbrgr-div:hover {
-    box-shadow: 0 1px 1px 1px #bbbbbb;
-}
-.hmbrgr-div img {
-    width: 18px;
-    margin: 2px;
-}
-.hmbrgr-open {
-    background-color: #a1a1a1;
-}
-/*****************************************************/
-
-/*****************************************************/
-/*                   GENERAL MODAL                   */
-.modal-dialog {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-}
-.modal-content {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-}
-.modal-header {
-    min-height: 70px;
-}
-.modal-body {
-    position: fixed;
-    top: 70px;
-    bottom: 65px;
-    right: 1px;
-    left: 0;
-    overflow-y: auto;
-}
-.modal-footer {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-flex-flow: row wrap;
-    -ms-flex-flow: row wrap;
-    flex-flow: row wrap;
-    -webkit-box-pack: end;
-    -webkit-justify-content: flex-end;
-    -ms-flex-pack: end;
-    justify-content: flex-end;
-    -webkit-align-content: space-between;
-    -ms-flex-line-pack: justify;
-    align-content: space-between;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
-    height: 65px;
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    left: 0;
-}
-.footer-info {
-    text-align: left;
-    margin-left: 5px;
-}
-.modal-body td, .modal-body th {
-    padding: 10px;
-}
-.modal-info {
-    margin-right: 38%;
-}
-.import-btn {
-    background-color: #1abc9c !important;
-}
-.import-btn:not(:disabled):hover {
-    background-color: rgb(19, 140, 116) !important;
-}
-#load-from-pc:disabled {
-    pointer-events: all;
-    cursor: default;
-}
-#load-from-pc:disabled:hover::after {
-    content: "The project must be saved before local files can be added";
-    position: absolute;
-    top: 0;
-    white-space: normal;
-    background-color: yellow;
-    font-size: small;
-    left: 125px;
-    color: black;
-}
-/*****************************************************/
-
-/*****************************************************/
-/*                  HS RES MODAL                     */
-
-#modalLoadRes .modal-dialog {
-    width: auto;
-    margin: 15px;
-}
-#modalLoadRes tbody tr:hover {
-    background-color: #0099ff;
-    color: white;
-    cursor: pointer;
-}
-#modalLoadRes .modal-body {
-    bottom: 110px;
-    right: 1px;
-    left: inherit;
-}
-#div-chkbx-res-auto-close {
-    position: fixed;
-    bottom: 65px;
-    margin: 10px 0 5px 0;
-    height: 30px;
-}
-#chkbx-res-auto-close {
-    margin-left: 25px;
+    flex-grow: 1;
 }
 
-input[type="radio"] {
-    cursor: pointer;
-}
-/*****************************************************/
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
 
-/*****************************************************/
-/*                  WELCOME MODAL                    */
-#modalWelcome .modal-body {
-    right: 1px;
-}
-.welcome-step {
-    font-size: 18px;
-}
-.welcome-substep1 {
-    font-size: 16px;
-}
-.welcome-substep2 {
-    font-size: 14px;
-}
-/*****************************************************/
 
-/*****************************************************/
-/*               UPLOAD FILE MODAL                   */
-#modalLoadFile .modal-content {
-    position: static;
-}
-#modalLoadFile .modal-body {
-    position: static;
-}
-#modalLoadFile .modal-footer {
-    position: static;
-}
-#progress-bar {
-    position: relative;
-    top: -20px;
-    width: 0;
-    height: 20px;
-    background-color: blue;
-    z-index: 1;
-    color: blue;
-}
-#empty-bar {
-    background-color: grey;
-    color: grey;
-    height: 20px;
-}
-#progress-text {
-    position: relative;
-    top: -40px;
-    height: 20px;
-    color: black;
-    text-align: center;
-    font-weight: bold;
-    z-index: 2;
-}
-#msg-file {
-    background-color: darkred;
-    color: white;
-    margin: 10px;
-    text-align: center;
-}
-/*****************************************************/
+/* :::::::::::::::::::: Workspace Action List ::::::::::::::::::: */
 
-/*****************************************************/
-/*             ATTR TABLE MODAL                 */
-#modalAttrTbl .modal-dialog {
-    width: auto;
-    margin: 15px;
+.tab-action-list {
+    background-color: #D3D3D3;
+    padding: 3px;
 }
-/*****************************************************/
 
-/*****************************************************/
-/*                   SYMBOLOGY MODAL                 */
-#modalSymbology .modal-dialog {
-    max-width: 800px;
-    width: auto;
+.action-button {
+    float: left;
+    height: 50px;
+    width: 140px;
+    background: #FFFFFF;
+    transition: 0.1s;
+    border-radius: 5px;
+    border: 1px solid #D3D3D3;
+    margin: 3px;
 }
-#modalSymbology .modal-body {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-flex-flow: row nowrap;
-    -ms-flex-flow: row nowrap;
-    flex-flow: row nowrap;
-    -webkit-box-pack: justify;
-    -webkit-justify-content: space-between;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-}
-#symbology-preview-container {
-    margin-right: 50px;
-}
-#symbology-preview {
-    text-align: center;
-    font-weight: bold;
-    margin: auto;
-}
-#label-preview {
-    position: relative;
-    top: -14px;
-    right: -56px;
-    font-size: 8px;
-}
-#symbology-modal-info {
-    background-color: red;
-    color: white;
-}
-/*****************************************************/
 
-/*****************************************************/
-/*                SAVE PROJECT MODAL                 */
-#modalSaveProject .modal-content {
-    position: static;
+.action-button:hover {
+    background-color: #F0F0F0;
 }
-#modalSaveProject .modal-body {
-    position: static;
-}
-#modalSaveProject .modal-footer {
-    position: static;
-}
-#save-status {
-    text-align: center;
-}
-/*****************************************************/
 
-/*****************************************************/
-/*                    LEGEND MODAL                   */
-#modalLegend {
-    right: initial;
-    top: 100px;
+.action-button:focus {
+    outline:0;
 }
-#modalLegend .modal-dialog {
-    position: fixed;
-    top: 70px;
-    bottom: -30px;
-    right: initial;
-    width: 300px;
+
+.action-button:active {
+    background:#cccccc;
 }
-#modalLegend .modal-content {
+
+
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* :::::::::::::::::::::::: Search Tab :::::::::::::::::::::::::: */
+
+#search-tab-content {
+    display: none;
+}
+
+.search-nav-header {
+    overflow: hidden;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 8px;
+    padding-top: 8px;
+    background-color: #FFFFFF;
+    width: 100%;
+    height: 50px;
+}
+
+.search-bar-input {
+    outline: none;
+    background-color: whitesmoke;
     border: none;
-    border-radius: 0;
+    width: 80%;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
-#img-legend {
-    max-width: 100%;
-}
-/*****************************************************/
 
-/*****************************************************/
-/*                ADD TO PROJECT MODAL               */
-.list-no-bullets {
-    list-style: none;
+.search-bar-container:focus-within {
+    border: 1px solid #2196F3;
+    box-shadow: 0px 0px 2px 0px #2196F3;
 }
-/*****************************************************/
 
-/*****************************************************/
-/*                ADD WMS LAYER MODAL                */
-#modalAddWMS .modal-content {
-    position: static;
-}
-#modalAddWMS .modal-body {
-    position: static;
-}
-#modalAddWMS .modal-footer {
-    position: static;
-}
-#wms-url {
+.search-bar-container {
+    padding-left: 25px;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: solid;
+    border-color: lightgray;
+    border-width: 1px;
     width: 100%;
+    background-color: whitesmoke;
 }
-/*****************************************************/
 
-/*****************************************************/
-/*                    VIEW FILE MODAL                */
-#modalViewFile .modal-dialog {
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ============================================================== */
+/* ============================================================== */
+/* ============================================================== */
+
+
+
+
+
+/* ============================================================== */
+/* ======================== App Content ========================= */
+/* ============================================================== */
+
+
+/* :::::::::::::::::::::::: Map Container ::::::::::::::::::::::: */
+
+#map {
+    height: 100%;
+}
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ============================================================== */
+/* ============================================================== */
+/* ============================================================== */
+
+
+
+
+
+/* ============================================================== */
+/* ========================= App Modals ========================= */
+/* ============================================================== */
+
+
+/* :::::::::::::::::::::: Local File Upload ::::::::::::::::::::: */
+
+#shapefile-upload {
+    display: visible;
+}
+
+#geojson-upload {
+    display: none;
+}
+
+#geotiff-upload {
+    display: none;
+}
+
+#netcdf-upload {
+    display: none;
+}
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ::::::::::::::::::::::: Attribute Table :::::::::::::::::::::: */
+
+.attr-table-container {
+
+}
+
+.data-tables-scroll {
+    overflow: auto;
+    width:100%;
+}
+
+.modal-dialog {
     width: auto;
-    margin: 15px;
-}
-#modalViewFile .modal-body {
-    bottom: 110px;
-    right: 1px;
-    left: inherit;
-}
-#iframe-container {
-    height: 100%;
-    width: 100%;
-}
-#iframe-js-viewer {
-    width: 100%;
-    height: 100%;
-    padding: 15px;
-}
-#img-viewer {
-    max-height: 100%;
-    max-width: 100%;
-    margin: 15px;
-}
-#close-modalViewFile {
-    cursor: pointer;
-    position: absolute;
-    right: -2px;
-    background-color: #4c4c4c;
-    top: -2px;
-    width: 25px;
-    padding: 3px 3px 3px 8px;
-    color: white;
-    border-radius: 50%;
-    z-index: 1000;
-    font-weight: bold;
-}
-/*****************************************************/
-
-/*****************************************************/
-/*                USER MESSAGES MODAL                */
-#modalUserMessages .modal-content {
-    position: static;
-}
-#modalUserMessages .modal-body {
-    position: static;
-}
-#modalUserMessages .modal-footer {
-    position: static;
-}
-/*****************************************************/
-
-/*****************************************************/
-/*                LOG MODAL                */
-#modalLog .modal-content {
-    position: static;
-}
-#modalLog .modal-body {
-    position: static;
-}
-#modalLog .modal-footer {
-    position: static;
-}
-/*****************************************************/
-
-/*****************************************************/
-/*                USER MESSAGES MODAL                */
-#modalExportMap .modal-content {
-    position: static;
-}
-#modalExportMap .modal-body {
-    position: static;
-}
-#modalExportMap .modal-footer {
-    position: static;
-}
-/*****************************************************/
-
-/*****************************************************/
-/*                 MAIN LOADING DIV                  */
-#div-loading, #res-load-status, #export-canvas {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-}
-#div-loading, #div-loading-mask {
-    position: absolute;
-    top: 20px;
-    background-color: rgba(217, 217, 219, 0.6);
-}
-#res-load-status {
-    z-index: 2000;
-    pointer-events: none;
-}
-#status-text {
-    font-size: 16pt;
-    font-weight: bold;
-}
-#export-canvas {
-    pointer-events: none;
-    z-index: 2000;
-}
-/****************************************************/
-
-.dataTables_scrollHead {
-    overflow-x: auto;
+    max-width: 90%;
 }
 
-/****************************************************/
-/*                  GENERAL STYLING                 */
-/*label {*/
-    /*margin: 10px;*/
-/*}*/
-.error {
-    background-color: red;
-    color: white;
+#data_table_length{
+    visibility: hidden;
 }
-.success {
-    background-color: green;
-    color: white;
+
+#data_table_filter{
+    visibility: hidden;
 }
-@media (max-width: 550px) {
-    #byu-logo-container {
-        display: none;
-    }
+
+#data_table_info{
+    visibility: hidden;
 }
-.flex-container-row {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-around;
-    align-items: center;
+
+#data_table_paginate{
+    visibility: hidden;
 }
-.flex-container-col {
-    display: flex;
-    flex-flow: column wrap;
-    justify-content: space-around;
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ============================================================== */
+/* ============================================================== */
+/* ============================================================== */
+
+
+
+
+
+/* ============================================================== */
+/* ======================= Workspace Items ====================== */
+/* ============================================================== */
+
+
+/* :::::::::::::::::::::: Layer Container ::::::::::::::::::::::: */
+
+.workspace-layer-container {
+    margin: 3px;
+    border: 1px solid #D3D3D3;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    transition: 0.2s;
+    overflow: auto;
 }
-.flex1-0 {
-    flex: 1 0;
+
+.workspace-layer-container-hover:hover {
+    background-color: #F0F0F0;
 }
-#mouse-position {
+
+.layer-control-container {
+    height: 44px;
+    padding: 12px;
+}
+
+.workspace-layer-icon {
+    float: left;
+    width: 20px;
+}
+
+.workspace-layer-name {
+    float: left;
+    width: 155px;
+    height: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chk-container {
+    float: right;
+    margin-bottom: 0 !important;
+    margin-right: 8px;
+    margin-left: 8px;
+    display: block;
     position: relative;
-    top: -20px;
-    background-color: white;
+    border: solid lightgray;
+    border-width: 1px 1px;
+    height: 20px;
+    width: 20px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border-radius: 1px;
+}
+
+.chk-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkmark {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    margin: auto;
+    width: 50%;
+    height: 12px;
+    width: 12px;
+    border-radius: 1px;
+}
+
+.chk-container input:checked ~ .checkmark {
+    background-color: #2196F3;
+}
+
+.chk-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.chk-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.dropdown {
+    float:right;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    margin-left:5px;
+    position: relative;
     display: inline-block;
 }
-/****************************************************/
 
-/****************************************************/
-/*                       MAP MODS                   */
-.ol-zoomslider {
-    padding: 0;
-    left: 9px;
-    box-shadow: 0 0 5px rgba(0,60,136,.7);
-}
-.ol-zoomslider button {
-    border-radius: 5px;
-}
-a.ol-zoomslider-handle:hover {
-    background-color: rgba(134, 186, 251, 0.7);
-}
-#close-map-popup {
+.dropdown-content {
+    display: none;
     position: absolute;
-    top: 0;
-    right: 2px;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #ddd}
+
+.show {display:block;}
+
+.glyphicon.glyphicon-menu-hamburger{
+    font-size: 16px;
+}
+
+.dropdown-button {
+    padding: 2px;
+    float:right;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
     cursor: pointer;
 }
-/****************************************************/
+
+.dropdown-button:hover {
+    background-color: lightgray;
+}
+
+.dropdown-button:active {
+    background-color: gray;
+}
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ::::::::::::::::::::: Layer Context Menu ::::::::::::::::::::: */
+
+.context-menu-wrapper {
+    float:right;
+    position: absolute;
+    height: 120px;
+    width: 160px;
+    background-color: transparent;
+    z-index: 1000;
+    box-shadow: 1px 1px 5px black;
+    border-radius: 3px;
+}
+
+.context-menu {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border-radius: 3px;
+    padding: 10px;
+}
+
+.context-menu:after {
+    content: '';
+    transform:rotate(45deg);
+    position: absolute;
+    background-color: white;
+    left: 0;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    z-index: -2;
+    box-shadow: 1px 1px 5px black;
+    margin-top: -8px;
+    margin-left: -7px;
+}
+
+.context-menu-button {
+    position: relative;
+    height: 25%;
+    width: 100%;
+    padding-top:2px;
+    padding-bottom:2px;
+    padding-left: 5px;
+    cursor: pointer;
+}
+
+.context-menu-button:hover {
+    background-color: lightgray;
+}
+
+.context-menu-button:active {
+    background-color: gray;
+}
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ============================================================== */
+/* ============================================================== */
+/* ============================================================== */
+
+
+
+
+
+/* ============================================================== */
+/* ======================= Symbology Menu ======================= */
+/* ============================================================== */
+
+
+/* ::::::::::::::::::::::::: Symbology :::::::::::::::::::::::::: */
+
+.layer-symbology-container {
+    position: relative;
+    display: none;
+    margin-left: 12px;
+    margin-right: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    height: 100%;
+    border: solid lightgray;
+    border-width: 1px 0 0 0;
+}
+
+.symbology-tab-container {
+    height: 10%;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.symbology-tab-container button {
+    align-self: center;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    /*transition: 0.2s;*/
+    font-size: 14px;
+    width: 84px;
+    border-radius: 5px;
+}
+
+.symbology-tab-container button:hover {
+    background-color: lightgray;  
+}
+
+.symbology-tab-container button.active {
+    background-color: #008080;
+    color: white; 
+}
+
+.symbology-tab-content {
+    display: none;
+}
+
+.transparency-value {
+    height: 30px;
+    width: 30px;
+    padding: 3px;
+    border-radius: 3px;
+    background-color: lightgray;
+}
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+
+/* ============================================================== */
+/* ============================================================== */
+/* ============================================================== */

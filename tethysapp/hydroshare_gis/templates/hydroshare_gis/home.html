@@ -1,543 +1,137 @@
 {% extends "hydroshare_gis/base.html" %}
-
+{% load tethys_gizmos %}
 {% load staticfiles %}
 
-{% block app_content %}
-    <div id="map"></div>
-    <div id="map-popup"></div>
-    <div id="mouse-position"></div>
+{% block header_buttons %}
+  <div class="header-button glyphicon-button" data-toggle="tooltip" data-placement="bottom" title="Help">
+    <a data-toggle="modal" data-target="#help-modal"><span class="glyphicon glyphicon-question-sign"></span></a>
+  </div>
 {% endblock %}
 
-{% block app_content_wrapper_override %}
+{% block app_navigation_items %}
 
-    {{ block.super }}
+<div class="nav-pane-tab-selector">
+  <button id="nav-pane-search-tab-toggle" class="tab-nav-button">Discover</button>
+  <button id="nav-pane-workspace-tab-toggle" class="tab-nav-button" active>Workspace</button>
+</div>
 
-    <!-- Add File Modal -->
-    <div id="modalLoadFile" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add Local File</h4>
-                </div>
-                <div class="modal-body">
-                    <h5>1. Choose where to store files:</h5>
-                    <div id="projNotSavedInfo" class="alert-danger" hidden>
-                        Your project is not currently saved. Please save the project or choose to store files in a
-                        unique resource.
-                    </div>
-                    <label for="storeFiles-Proj">In project resource (project must be saved)</label>
-                    <input type="radio" name="store-local-files" id="storeFiles-Proj" value="project">
-                    <label for="storeFiles-Res">In unique resource (create new resource)</label>
-                    <input type="radio" name="store-local-files" id="storeFiles-Res" value="resource" checked>
-                    <fieldset id="fields-newRes">
-                        <div class="form-group">
-                            <label for="resType" class="control-label">Resource Type:</label>
-                            <select id="resType">
-                                <option value="GenericResource">Generic</option>
-                                <option value="RasterResource">Raster</option>
-                                <option value="GeographicFeatureResource">Geographic Feature</option>
-                                <option value="ScriptResource">Script</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="resTitle" class="control-label">Resource Title:</label>
-                            <input type="text" class="form-control resField" id="resTitle">
-                        </div>
-                        <div class="form-group">
-                            <label for="resAbstract" class="control-label">Resource Abstract:</label>
-                            <textarea rows="6" cols="50" id="resAbstract" class="form-control resField"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="resKeywords" class="control-label">Resource Keywords:</label>
-                            <input type="text" class="form-control resField" id="resKeywords">
-                        </div>
-                    </fieldset>
-                    <h5>2. Choose files:</h5>
-                    <input id="input-files" type="file">
-                    <br>
-                    <div id="msg-file" class="hidden"></div>
-                </div>
-                <div class="modal-footer">
-                    <div class="button-group flex1-0">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" id="btn-upload-file" class="btn btn-default btn-upload" disabled>Add</button>
-                    </div>
-                </div>
-            </div>
-            <!--End modal content-->
+<div id="search-tab-content" class="nav-tab-content">
+  <div class="search-nav-header">
+    <div class="search-bar-container">
+      <input class="search-bar-input" type="text" placeholder="Search HydroShare...">
+      <span class="glyphicon glyphicon-filter"></span>
+      <span class="glyphicon glyphicon-search"></span>
+    </div>
+  </div>
+</div>
+
+<div id="workspace-tab-content" class="nav-tab-content">
+  <div class="workspace-section-header">
+    <h5>Layers</h5>
+  </div>
+  <ul class="workspace-layer-list sortable"></ul>
+  <div class="workspace-section-header">
+    <h5>Actions</h5>
+  </div>
+  <div class="tab-action-list">
+    <button data-toggle="modal" data-target="#import-modal" class="action-button">Add Local Data</button>
+    <button data-toggle="modal" data-target="#export-modal" class="action-button">Download Data</button>
+    <button data-toggle="modal" class="action-button">Tools</button>
+    <button data-toggle="modal" class="action-button">Export To HydroShare</button>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block app_content %}
+  <div id="map" class="map"></div>
+{% endblock %}
+
+{# Use the after_app_content block for modals #}
+{% block after_app_content %}
+
+  <div class="modal fade" id="help-modal" tabindex="-1" role="dialog" aria-labelledby="help-modal-label">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+
         </div>
-    </div>
-    <!--End modal-->
-
-    <!-- Add HS Resource Modal -->
-    <div id="modalLoadRes" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add HydroShare Resource</h4>
-                </div>
-                <div class="modal-body">
-                    <img src="/static/hydroshare_gis/images/loading-animation.gif">
-                    <br>
-                    <p><b>Loading resource list...</b></p>
-                    <p>Note: Loading will continue if dialog is closed.</p>
-                </div>
-                <div class="modal-footer">
-                    <div class="button-group flex1-0">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" id="btn-upload-res" class="btn btn-default btn-upload hidden" disabled>Add</button>
-                    </div>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-body">
+          
         </div>
-    </div>
-    <!--End modal-->
-
-    <!-- Welcome Modal -->
-    <div id="modalWelcome" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Help</h4>
-                </div>
-                <div class="modal-body">
-                    <p><b>If you opened this app from a HydroShare Resource page "Open with..." link, your resource is loading in the background.
-                        Once loaded, the same steps below apply.</b></p>
-                    <h6>You can do the following:</h6>
-                    <ol>
-                        <li class="welcome-step">Add a base map to the view
-                            <p><b>Click the "Base Map..." dropdown and select an option</b></p>
-                        </li>
-                        <li class="welcome-step">Add a layer to the view
-                            <p><b>You have two buttons to choose from:</b></p>
-                            <ul>
-                                <li class="welcome-substep1">Add HydroShare Resource
-                                    <p>A list of all public resources will show up. Select the one you want to load and then click 'Upload'</p></li>
-                                <li class="welcome-substep1">Add File
-                                    <p>A browse button will show up. Select a valid file from your computer and then click 'Upload'</p></li>
-                            </ul>
-                            <p><b>Once layers load, they will show up in the 'Current Layers' list and their extents will be zoomed to</b></p>
-                        </li>
-                        <li class="welcome-step">Manipulate layers in the view
-                            <p><b>In the 'Current Layers' list you can do the following:</b></p>
-                            <ul>
-                                <li class="welcome-substep1">Show/Hide a layer
-                                    <p>Check/Uncheck the box next to the layer name</p>
-                                </li>
-                                <li class="welcome-substep1">Change a layer's display order.
-                                    <p>Click and drag the layer names to a new position in the list.
-                                        The layers are rendered in the reverse-order they appear in the list, with the top-most layers in the list rendering last (on-top)
-                                    </p>
-                                </li>
-                                <li class="welcome-substep1">Rename a layer
-                                    <p>Right click the layer and select "Rename" or double click the layer name. Press 'Enter' when done.</p>
-                                </li>
-                                <li class="welcome-substep1">Zoom to a layer
-                                    <p>Right click the layer and select "Zoom to"</p>
-                                </li>
-                                <li class="welcome-substep1">Delete a layer
-                                    <p>Right click the layer and select "Delete"</p>
-                                </li>
-                                <li class="welcome-substep1">View a layer's attribute table
-                                    <p>Right click the layer and select "View attribute table"</p>
-                                    <p>Note: This option is only available for shapefiles.</p>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="welcome-step">Click 'Exit' in the top-right of the app to return to the HydroShare Apps Library</li>
-                    </ol>
-                </div>
-                <div class="modal-footer">
-                    <div id="byu-logo-container">
-                        <span><i>Developed at the BYU Hydroinformatics Lab</i></span>
-                        <img src="{% static 'hydroshare_gis/images/byu-medallion.png' %}"/>
-                    </div>
-                    <a href="https://github.com/shawncrawley/tethysapp-hydroshare_gis" target="_blank" class="btn btn-default">View Code</a>
-                    <a href="../" class="btn btn-default">Back to Apps Library</a>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-footer">
+          
         </div>
+      </div>
     </div>
-    <!--End modal-->
+  </div>
 
-    <!-- Symbology Modal -->
-    <div id="modalSymbology" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <fieldset id="point-options" class="hidden point">
-                            <label for="slct-point-shape">Point marker shape:</label>
-                            <select id="slct-point-shape">
-                                {% for val in point_shape_options %}
-                                    <option value="{{ val }}">{{ val }}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="slct-point-size">Point marker size:</label>
-                            <select id="slct-point-size">
-                                {% for val in point_size_options %}
-                                    <option value="{{ val }}">{{ val }}</option>
-                                {% endfor %}
-                            </select>
-                        </fieldset>
-                        <fieldset id="fill-options" class="hidden polygon point">
-                            <label for="geom-fill">Fill color:</label>
-                            <input type="text" id="geom-fill">
-                            <br>
-                        </fieldset>
-                        <fieldset id="include-outline" class="hidden polygon point">
-                            <label for="chkbx-include-outline">Include outline:</label>
-                            <input type="checkbox" id="chkbx-include-outline">
-                            <br>
-                        </fieldset>
-                        <fieldset id="outline-options" class="hidden line">
-                            <label for="stroke">Line color:</label>
-                            <input type="text" id="stroke">
-                            <label for="slct-stroke-width">Line width:</label>
-                            <select id="slct-stroke-width">
-                                {% for val in stroke_width_options %}
-                                    <option value="{{ val }}">{{ val }}</option>
-                                {% endfor %}
-                            </select>
-                            <br>
-                        </fieldset>
-                        <fieldset id="include-labels" class="hidden polygon point line">
-                            <label for="chkbx-include-labels">Include labels:</label>
-                            <input type="checkbox" id="chkbx-include-labels">
-                        </fieldset>
-                        <fieldset id="label-options" class="hidden">
-                            <label for="slct-label-field">Label field:</label>
-                            <select id="slct-label-field"></select>
-                            <label for="slct-font-size">Font size:</label>
-                            <select id="slct-font-size">
-                                {% for val in font_size_options %}
-                                    <option value="{{ val }}">{{ val }}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="font-fill">Font color:</label>
-                            <input type="text" id="font-fill">
-                        </fieldset>
-                        <fieldset id="raster-options" class="hidden raster">
-                            <div>
-                                <p><b>Variable:</b> <span id="rast-variable"></span></p>
-                                <p><b>Units:</b> <span id="rast-units"></span></p>
-                                <p><b>Min value:</b> <span id="rast-min-val"></span></p>
-                                <p><b>Max value:</b> <span id="rast-max-val"></span></p>
-                                <p><b>No Data value:</b> <span id="rast-nd-val"></span></p>
-                            </div>
-                            <label for="raster-opacity">Raster Opacity:</label>
-                            <input id="raster-opacity" type="number" min="0" max="1" step="0.1" value="1">
-                            <button type="button" id="apply-opacity-to-colors">Apply to all colors</button>
-                            <span>(Where 0=Invisible and 1=Visible)</span>
-                            <br>
-                            <div>
-                                <label>Rendering method:</label>
-                                <br>
-                                <span style="margin-left:10px;">Hover over options for an explanation</span>
-                                <br>
-                                <input type="radio" style="margin-left:10px;" name="rast-symb-method" id="rast-ramp" value="ramp" checked>
-                                <label for="rast-ramp" title="Colors are interpolated for values between the color/value entries">Ramp</label>
-                                <input type="radio" name="rast-symb-method" id="rast-interval" value="intervals">
-                                <label for="rast-intervals" title="Each interval defined by two color/value entries is rendered using the color of the first (lowest-value) entry">Interval</label>
-                                <input type="radio" name="rast-symb-method" id="rast-values" value="values">
-                                <label for="rast-values" title="Only pixels with the specified entry quantity values are rendered">Values</label>
-                            </div>
-                            <label for="slct-num-colors-in-gradient">Number of color/value definitions:</label>
-                            <select id="slct-num-colors-in-gradient">
-                                {% for val in num_gradient_colors_options %}
-                                    <option value="{{ val }}">{{ val }}</option>
-                                {% endfor %}
-                            </select>
-                            <div id="color-map-placeholder"></div>
-                            <br>
-                        </fieldset>
-                    </form>
-                    <div id="symbology-preview-container" class="hidden line polygon point">
-                        <h4>Preview:</h4>
-                        <div id="symbology-preview"></div>
-                        <span id="label-preview" class="hidden">Label</span>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <span id="symbology-modal-info" class="hidden"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" id="btn-apply-symbology" class="btn btn-default">Apply</button>
-                </div>
-            </div>
-            <!--End modal content-->
+  <div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-labelledby="help-modal-label">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+
         </div>
-    </div>
-    <!--End modal-->
-
-    <!-- Attribute Table Modal -->
-    <div id="modalAttrTbl" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-body">
+          <select class="local-file-select">
+            <option value="shapefile">Shapefile (Feature)</option>
+            <option value="geojson">GeoJSON (Feature)</option>
+            <option value="geotiff">GeoTiff (Raster)</option>
+            <option value="netcdf">NetCDF (Raster)</option>
+          </select>
+          <br>
+          <br>
+          <input id="shapefile-upload" class="local-file-upload" type="file" accept=".shp,.prj,.shx,.dbf" multiple>
+          <input id="geojson-upload" class="local-file-upload" type="file" accept=".json,.geojson">
+          <input id="geotiff-upload" class="local-file-upload" type="file" accept=".tif">
+          <input id="netcdf-upload" class="local-file-upload" type="file" accept=".nc">
+          <br>
+          <br>
+          <button type="button" class="btn btn-default" id="submit-ffgf-data" onclick="uploadLocalFiles()" data-dismiss="modal">Submit</button>
         </div>
-    </div>
-    <!--End modal-->
-
-    <!-- Save New Project Modal -->
-    <div id="modalSaveNewProject" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Save Map Project as HydroShare Resource</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="res-title" class="control-label">*Resource Title:</label>
-                        <input type="text" class="form-control" id="res-title">
-                    </div>
-                    <div class="form-group">
-                        <label for="res-abstract" class="control-label">Resource Abstract:</label>
-                        <textarea rows="6" cols="50" id="res-abstract" class="form-control">This resource contains a HydroShare Map Project file created using the HydroShare GIS web app. The Map Project file is in JSON format and contains data regarding the state of the project upon creating this resource.</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="res-keywords" class="control-label">Resource Keywords:</label>
-                        <input type="text" class="form-control" id="res-keywords" value="Map, Project">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="footer-info flex1-0 hidden" id="footer-info-saveProj">
-                        Saving...&nbsp;<img src="/static/hydroshare_gis/images/loading-animation.gif" />
-                    </div>
-                    <div class="button-group flex1-0">
-                        <button type="button" class="btn btn-default footer" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary footer" disabled id="btn-save-new-project">Save</button>
-                    </div>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-footer">
+        
         </div>
+      </div>
     </div>
-    <!-- End modal -->
+  </div>
 
-    <!-- Export to PDF Modal -->
-    <div id="modalExportMap" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form">
-                        <label for="slct-format">Page size </label>
-                        <select id="slct-format">
-                            <option value="a0">A0 (slow)</option>
-                            <option value="a1">A1</option>
-                            <option value="a2">A2</option>
-                            <option value="a3">A3</option>
-                            <option value="a4" selected>A4</option>
-                            <option value="a5">A5 (fast)</option>
-                        </select>
-                        <label for="slct-resolution">Resolution </label>
-                        <select id="slct-resolution">
-                            <option value="72">72 dpi (fast)</option>
-                            <option value="150">150 dpi</option>
-                            <option value="300">300 dpi (slow)</option>
-                        </select>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default footer" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary footer" id="btn-export-pdf">Export to PDF</button>
-                </div>
-            </div>
-            <!--End modal content-->
+  <div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="help-modal-label">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+
         </div>
-    </div>
-    <!-- End modal -->
-
-    <!-- Add to Project Modal -->
-    <div id="modalAddToProject" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add Resource(s) To Map Project</h4>
-                </div>
-                <div class="modal-body">
-                    {% if resources_to_add %}
-                        <h5>Resource(s) to be added to Map Project:</h5>
-                        <ul id="ul-resources-to-add" class="list-no-bullets">
-                            {% for resource in resources_to_add %}
-                                <li data-id="{{ resource.id }}" data-type="{{ resource.type }}" data-title="{{ resource.title }}">{{ resource.title }}</li>
-                            {% endfor %}
-                        </ul>
-                        <br><br>
-                        <div class="flex-container-row" id="add-to-proj-btns">
-                            <button type="button" class="btn" id="btn-opt-add-to-existing">Add to Existing Project</button>
-                            <button type="button" class="btn" id="btn-opt-add-to-new">Add to New Project</button>
-                        </div>
-                    {% else %}
-                        <h6>Sorry, there were no resource id's passed in the URL.</h6>
-                    {% endif %}
-                    <br><br>
-                    <div id="opts-add-to-existing" class="hidden opts-add-to-project flex-container-col">
-                        {% if existing_projects %}
-                            <h5>Projects you currently own:</h5>
-                            <ul id="ul-existing-projects" class="list-no-bullets">
-                                {% for project in existing_projects %}
-                                    <li><input type="radio" name="project" class="opt-existing-project" value="{{ project.id }}">{{ project.title }}</li>
-                                {% endfor %}
-                            </ul>
-                            <button type="button" id="btn-add-to-existing-project">Add Resource(s) to Selected Project</button>
-                        {% else %}
-                            <h5>Sorry, you do not own any map projects.</h5>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-body">
+        
         </div>
-    </div>
-    <!--End modal-->
-
-    <!-- Add WMS Layer Modal -->
-    <div id="modalAddWMS" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add WMS Layer</h4>
-                </div>
-                <div class="modal-body">
-                    <label for="wms-url">WMS Endpoint</label>
-                    <input type="text" id="wms-url">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="btn-add-wms" class="btn btn-default">Add WMS</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-footer">
+        
         </div>
+      </div>
     </div>
-    <!--End modal-->
+  </div>
 
-    <!-- Legend Modal -->
-    <div id="modalLegend" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body flex-container-col">
-                    <div>
-                        <p><b>Variable:</b> <span id="legend-var"></span></p>
-                        <p><b>Units:</b> <span id="legend-units"></span></p>
-                    </div>
-                    <img id="img-legend" src="">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-            <!--End modal content-->
+  <div class="modal fade" id="attr-table-modal" tabindex="-1" role="dialog" aria-labelledby="help-modal-label">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4>Attribute Table: US States</h4>
         </div>
-    </div>
-    <!--End modal-->
-
-    <!-- View File Modal -->
-    <div id="modalViewFile" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <span id="close-modalViewFile">X</span>
-            <div class="modal-content flex-container-row">
-                <img id="view-file-loading" class="view-file" src="/static/hydroshare_gis/images/main-loading-anim.gif" />
-                <h3 id="view-file-status" class="view-file"></h3>
-                <div id="iframe-container" class="view-file">
-                </div>
-                <img id="img-viewer" src="" class="view-file">
-                <div id="unviewable-file" class="view-file flex-container-col">
-                    <h3>No preview available for the selected file.</h3>
-                    <a href="" target="_blank" id="link-download-file" class="btn btn-primary btn-lg">Download</a>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-body">
+          <div class="attr-table-container">
+            <table class="attr-table"></table>
+          </div>
         </div>
-    </div>
-    <!--End modal-->
-
-    <!-- User Messages Modal -->
-    <div id="modalUserMessages" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>Warning</h4>
-                </div>
-                <div class="modal-body" id="modalUserMessages-messsage"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-            <!--End modal content-->
+        <div class="modal-footer">
+          
         </div>
+      </div>
     </div>
-    <!--End modal-->
+  </div>
 
-    <!-- Log Modal -->
-    <div id="modalLog" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Log</h4>
-                </div>
-                <div class="modal-body" id="logEntries"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" id="btn-clearLog">Clear Log</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-            <!--End modal content-->
-        </div>
-    </div>
-    <!--End modal-->
+{% endblock %}
 
-    <div id="res-load-status" class="hidden">
-        <div id="status-text"></div>
-    </div>
-    <canvas id="export-canvas" class="hidden" hidden></canvas>
+{% block app_actions %}
 
 {% endblock %}

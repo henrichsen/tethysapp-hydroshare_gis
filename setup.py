@@ -1,4 +1,5 @@
 import os
+import sys
 from setuptools import setup, find_packages
 from tethys_apps.app_installation import custom_develop_command, custom_install_command
 
@@ -9,16 +10,16 @@ app_class = 'hydroshare_gis.app:HydroshareGis'
 app_package_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tethysapp', app_package)
 
 # ### Python Dependencies ###
-dependencies = ['hs-restclient', 'xmltodict', 'GDAL']
+dependencies = ['hs-restclient']
 
 setup(
     name='HydroShare GIS',
-    version='1.0',
+    version='2.0',
     description='View HydroShare Raster and Feature Resources and/or upload them from your computer.',
     long_description='',
     keywords='',
-    author='Shawn Crawley',
-    author_email='scrawley@byu.edu',
+    author='Kenneth Lippold',
+    author_email='klippold@byu.net',
     url='',
     license='The MIT License (MIT)',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
