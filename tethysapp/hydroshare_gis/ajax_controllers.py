@@ -1,6 +1,5 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-import shutil
 import os
 import rasterio
 import fiona

@@ -3,4 +3,3 @@ rasterio
 fiona
 numpy
 os
-shutil
