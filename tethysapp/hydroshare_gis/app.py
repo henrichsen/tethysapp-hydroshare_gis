@@ -1,5 +1,6 @@
 from tethys_sdk.base import TethysAppBase, url_map_maker
 from tethys_sdk.app_settings import SpatialDatasetServiceSetting
+from tethys_sdk.app_settings import CustomSetting
 
 
 class HydroshareGis(TethysAppBase):
@@ -48,10 +49,21 @@ class HydroshareGis(TethysAppBase):
         sds_settings = (
             SpatialDatasetServiceSetting(
                 name='default_geoserver',
-                description='spatial dataset service for app to use',
+                description='Spatial dataset service for app to use.',
                 engine=SpatialDatasetServiceSetting.GEOSERVER,
                 required=True,
             ),
         )
 
         return sds_settings
+
+
+    def custom_settings(self):
+        return (
+            CustomSetting(
+                name='geoserver',
+                type=CustomSetting.TYPE_STRING,
+                description='Spatial dataset service for the app to use.',
+                required=True
+            ),
+        )

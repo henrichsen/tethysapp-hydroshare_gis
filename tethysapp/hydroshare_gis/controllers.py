@@ -5,7 +5,7 @@ from tethys_sdk.gizmos import *
 from .app import HydroshareGis as app
 
 
-WORKSPACE = 'hydroshare_gis'
+WORKSPACE = 'hs_gis'
 GEOSERVER_URI = 'http://www.example.com/hydroshare_gis'
 
 
@@ -15,8 +15,10 @@ def home(request):
     Controller for the app home page.
     """
 
-    context = {
+    geoserver_endpoint = app.get_custom_setting('geoserver');
 
+    context = {
+        'geoserver_endpoint': geoserver_endpoint
     }
 
     return render(request, 'hydroshare_gis/home.html', context)

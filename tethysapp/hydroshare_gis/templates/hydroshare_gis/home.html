@@ -45,6 +45,11 @@
 
 {% block app_content %}
   <div id="map" class="map"></div>
+  {% if geoserver_endpoint %}
+  <div id="geoserver-endpoint" hidden>
+    {{ geoserver_endpoint }}
+  </div>
+  {% endif %}
 {% endblock %}
 
 {# Use the after_app_content block for modals #}

@@ -1,1 +1,6 @@
 hs-restclient
+rasterio
+fiona
+numpy
+os
+shutil

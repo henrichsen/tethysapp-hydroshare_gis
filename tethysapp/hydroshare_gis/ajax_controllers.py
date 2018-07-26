@@ -38,7 +38,7 @@ def ajax_add_layers(request):
     #   GETS DATA FROM JAVASCRIPT   #
     # ----------------------------- #
 
-    if True is True:
+    try:
 
         file_list = request.FILES.getlist('files')
         layer_code = str(request.POST.get('layerCode'))
@@ -88,9 +88,11 @@ def ajax_add_layers(request):
                 return JsonResponse(return_obj)
 
             else:
+                return_obj["message"] = "Your shapefile was unable to upload to GeoServer."
                 return JsonResponse(return_obj)
 
         if file_type == "geojson":
+            return_obj["message"] = "GeoJSON files are not currently supported."
             return JsonResponse(return_obj)
 
         if file_type == "geotiff":
@@ -130,12 +132,14 @@ def ajax_add_layers(request):
                 return JsonResponse(return_obj)
 
             else:
+                return_obj["message"] = "Your GeoTiff file was unable to upload to GeoServer."
                 return JsonResponse(return_obj)
 
         if file_type == "netcdf":
+            return_obj["message"] = "NetCDF files are not currently supported."
             return JsonResponse(return_obj)
 
-    else:
+    except:
 
         return_obj["success"] = 'false'
         return_obj["message"] = "We encountered a problem while loading your resource data."

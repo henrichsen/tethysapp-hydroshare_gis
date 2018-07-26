@@ -433,8 +433,10 @@
 
             sldBody = getSLDString(sldData)
 
+            geoserverUrl = $('#geoserver-endpoint').text() + '/wms'
+
             mapLayers[layerCode]['layer'][layerComponent]['layerSource'] = new ol.source.ImageWMS({
-                url: 'http://localhost:8181/geoserver/wms',
+                url: geoserverUrl,
                 params: {'LAYERS': layerWorkspace + ':' + layerCode, 'SLD_BODY': sldBody},
                 serverType: 'geoserver',
                 crossOrigin: 'Anonymous'

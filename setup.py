@@ -10,7 +10,7 @@ app_class = 'hydroshare_gis.app:HydroshareGis'
 app_package_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tethysapp', app_package)
 
 # ### Python Dependencies ###
-dependencies = ['hs-restclient']
+dependencies = ['hs-restclient', 'rasterio', 'fiona', 'numpy', 'os', 'shutil']
 
 setup(
     name='HydroShare GIS',
