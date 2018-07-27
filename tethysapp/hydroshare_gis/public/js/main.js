@@ -727,7 +727,7 @@
             },
             success: function (response) {
                 if (response['success'] === 'false') {
-                    alert(response['message'])
+                    console.log(response['message'])
                 } else {
                     var layerData = response['results']
                     mapAddLayer(layerData)

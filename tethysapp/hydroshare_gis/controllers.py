@@ -15,6 +15,11 @@ def home(request):
     Controller for the app home page.
     """
 
+    geoserver_engine = app.get_spatial_dataset_service(name='default_geoserver', as_engine=True)
+    print "GEOSERVER ENGINE"
+    print geoserver_engine
+    print "::::::::::::::::"
+
     geoserver_endpoint = app.get_custom_setting('geoserver');
 
     context = {
