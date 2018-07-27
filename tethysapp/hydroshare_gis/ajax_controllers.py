@@ -63,6 +63,17 @@ def ajax_add_layers(request):
         print geoserver_engine
         print "::::::::::::::::"
 
+        try:
+            try:
+                return_obj["message"] = "Geoserver Engine: " + str(geoserver_engine) + " : " + str(vars(geoserver_engine)) + " :End"
+            except:
+                return_obj["message"] = "Geoserver Engine: " + str(geoserver_engine) + " : " + "FAILED" + " :End"
+        except:
+            return_obj["message"] = "FAILED ENTIRELY"
+        return JsonResponse(return_obj)
+
+
+
         response = geoserver_engine.list_workspaces()
         print "WORKSPACES"
         print response
