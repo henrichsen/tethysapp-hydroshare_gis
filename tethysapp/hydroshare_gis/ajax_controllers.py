@@ -37,7 +37,7 @@ def ajax_add_layers(request):
     #   GETS DATA FROM JAVASCRIPT   #
     # ----------------------------- #
 
-    try:
+    if True is True:
 
         file_list = request.FILES.getlist('files')
         layer_code = str(request.POST.get('layerCode'))
@@ -54,9 +54,19 @@ def ajax_add_layers(request):
                 for chunk in file_list[n].chunks():
                     destination.write(chunk)
 
+        print "APP OBJECT"
+        print app
+        print "::::::::::::::::"
+
         geoserver_engine = app.get_spatial_dataset_service(name='default_geoserver', as_engine=True)
+        print "GEOSERVER ENGINE"
+        print geoserver_engine
+        print "::::::::::::::::"
 
         response = geoserver_engine.list_workspaces()
+        print "WORKSPACES"
+        print response
+        print "::::::::::::::::"
 
         if response['success']:
             workspaces = response['result']
@@ -138,7 +148,7 @@ def ajax_add_layers(request):
             return_obj["message"] = "NetCDF files are not currently supported."
             return JsonResponse(return_obj)
 
-    except:
+    else:
 
         return_obj["success"] = 'false'
         return_obj["message"] = "We encountered a problem while loading your resource data."
