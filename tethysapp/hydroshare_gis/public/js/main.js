@@ -1,4 +1,4 @@
-(function packageHydroShareGIS() {
+//(function packageHydroShareGIS() {
 
     //'use strict';
 
@@ -260,8 +260,9 @@
                 <div>
                     <label>Fill Color:</label>
                     <div class="symbology-input-container">
-                        <input type="text" class="color-selector point-fill-color"/></label>
+                        <input comp="fill" type="text" class="color-selector point-fill-color"/></label>
                     </div>
+                    <br>
                     <br>
                     <label>Point Size:</label>
                     <div class="symbology-input-container">
@@ -277,22 +278,24 @@
                         </select>
                     </div>
                     <br>
-                    <label>Point Shape:
+                    <br>
+                    <label>Point Shape:</label>
+                    <div class="symbology-input-container">                
                         <select class="point-shape">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="8">8</option>
-                            <option value="12">12</option>
-                            <option value="14">14</option>
-                            <option value="16">16</option>
-                            <option value="18">18</option>
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
                         </select>
-                    </label>
+                    </div>
                     <br>
-                    <label>BorderColor:<input type="text" class="color-selector point-border-color"/></label>
                     <br>
-                    <label>Border Thickness:
+                    <label>Border Color:</label>
+                    <div class="symbology-input-container">
+                        <input comp="stroke" type="text" class="color-selector point-border-color"/>
+                    </div>
+                    <br>
+                    <br>
+                    <label>Border Thickness:</label>
+                    <div class="symbology-input-container">
                         <select class="point-border-thickness">
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -303,7 +306,7 @@
                             <option value="16">16</option>
                             <option value="18">18</option>
                         </select>
-                    </label>
+                    </div>
                 </div>
                 <br>
                 <button class="exit-symbology-button">Done</button>
@@ -338,23 +341,25 @@
                 <br>
                 <div>
                     <label>Color Map:
-                        <select class="raster-colormap-select">
-                            <option value="gray">Gray</option>
-                            <option value="rainbow">Rainbow</option>
-                            <option value="electric">Electric</option>
-                            <option value="bone">Bone</option>
-                            <option value="blackbody">Blackbody</option>
-                            <option value="viridis">Viridis</option>
-                            <option value="jet">Jet</option>  
-                            <option value="hot">Hot</option>
-                            <option value="cool">Cool</option>
-                            <option value="magma">Magma</option>
-                            <option value="plasma">Plasma</option>   
-                            <option value="spring">Spring</option>
-                            <option value="summer">Summer</option>
-                            <option value="autumn">Autumn</option>
-                            <option value="winter">Winter</option>
-                        </select>
+                        <div class="symbology-input-container">
+                            <select class="raster-colormap-select">
+                                <option value="gray">Gray</option>
+                                <option value="rainbow">Rainbow</option>
+                                <option value="electric">Electric</option>
+                                <option value="bone">Bone</option>
+                                <option value="blackbody">Blackbody</option>
+                                <option value="viridis">Viridis</option>
+                                <option value="jet">Jet</option>  
+                                <option value="hot">Hot</option>
+                                <option value="cool">Cool</option>
+                                <option value="magma">Magma</option>
+                                <option value="plasma">Plasma</option>   
+                                <option value="spring">Spring</option>
+                                <option value="summer">Summer</option>
+                                <option value="autumn">Autumn</option>
+                                <option value="winter">Winter</option>
+                            </select>
+                        </div>
                     </label>
                 </div>
                 <br>
@@ -393,6 +398,56 @@
                             'width': 1,
                             'opacity': 1,
                             'visible': true
+
+                        }
+                    },
+                    'label': {
+                        'layerSource': {},
+                        'imageSource': {},
+                        'rasterSource': {},
+                        'zIndex': 2,
+                        'symbologyData': {
+                            'function': 'applySingleColor',
+                            'color': [0, 0, 0],
+                            'fontFamily': 'Arial',
+                            'fontSize': 12,
+                            'propertyName': 'NAME',
+                            'opacity': 1,
+                            'visible': false
+                        }
+                    }
+                }
+            },
+            'point': {
+                'type': 'point',
+                'layer': {
+                    'fill': {
+                        'layerSource': {},
+                        'imageSource': {},
+                        'rasterSource': {},
+                        'zIndex': 0,
+                        'symbologyData': {
+                            'function': 'applySingleColor',
+                            'color': [220, 220, 220],
+                            'opacity': 1,
+                            'visible': true,
+                            'shape': 'circle',
+                            'size': 8
+                        }
+                    },
+                    'stroke': {
+                        'layerSource': {},
+                        'imageSource': {},
+                        'rasterSource': {},
+                        'zIndex': 1,
+                        'symbologyData': {
+                            'function': 'applySingleColor',
+                            'color': [0,0,0],
+                            'width': 1,
+                            'opacity': 1,
+                            'visible': true,
+                            'shape': 'circle',
+                            'size': 8
 
                         }
                     },
@@ -470,12 +525,12 @@
                                                 '<PointSymbolizer>' +
                                                     '<Graphic>' +
                                                         '<Mark>' +
-                                                            '<WellKnownName>' + symbologyData['pointShape'] + '</WellKnownName>' +
+                                                            '<WellKnownName>' + symbologyData['shape'] + '</WellKnownName>' +
                                                             '<Fill>' +
                                                                 '<CssParameter name="fill">#FFFFFF</CssParameter>' +
                                                             '</Fill>' +
                                                         '</Mark>' +
-                                                        '<Size>' + symbologyData['pointSize'] + '</Size>' +
+                                                        '<Size>' + symbologyData['size'] + '</Size>' +
                                                     '</Graphic>' +
                                                 '</PointSymbolizer>' +
                                             '</Rule>' +
@@ -500,15 +555,15 @@
                                                 '<PointSymbolizer>' +
                                                     '<Graphic>' +
                                                         '<Mark>' +
-                                                            '<WellKnownName>' + symbologyData['pointShape'] + '</WellKnownName>' +
+                                                            '<WellKnownName>' + symbologyData['shape'] + '</WellKnownName>' +
                                                             '<Stroke>' +
                                                                 '<CssParameter name="stroke">#FF0000</CssParameter>' +
-                                                                '<CssParameter name="stroke-width">' + symbologyData['strokeWidth'] + '</CssParameter>' +
+                                                                '<CssParameter name="stroke-width">' + symbologyData['width'] + '</CssParameter>' +
                                                                 '<CssParameter name="stroke-linecap">round</CssParameter>' +
                                                                 '<CssParameter name="stroke-linejoin">round</CssParameter>' +
                                                             '</Stroke>' +
                                                         '</Mark>' +
-                                                        '<Size>' + symbologyData['pointSize'] + '</Size>' +
+                                                        '<Size>' + symbologyData['size'] + '</Size>' +
                                                     '</Graphic>' +
                                                 '</PointSymbolizer>' +
                                             '</Rule>' +
@@ -740,6 +795,25 @@
                 </svg>
             `
         };
+        if (layerType === 'point') {
+            fillColor = mapLayers[layerCode]['layer']['fill']['symbologyData']['color']
+            strokeColor = mapLayers[layerCode]['layer']['stroke']['symbologyData']['color']
+            pointShape = mapLayers[layerCode]['layer']['fill']['symbologyData']['shape']
+            if (pointShape === 'circle') {
+                svgIcon = `
+                    <svg height="24" width="24">
+                      <circle cx="12" cy="12" r="7" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
+                    </svg>
+                `
+            }
+            if (pointShape === 'square') {
+                svgIcon = `
+                    <svg height="24" width="24">
+                      <rect x="5" y="5" width="14" height="14" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
+                    </svg>
+                `
+            }
+        };
         if (layerType === 'raster') {
             colorMapName = mapLayers[layerCode]['layer']['raster']['symbologyData']['colorMap'];
             colorMap = getColorMap(colorMapName);
@@ -750,11 +824,11 @@
             svgIcon = `
                 <svg height="24" width="24">
                   <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <linearGradient id="${'grad-' + layerCode}" x1="0%" y1="0%" x2="100%" y2="0%">
                       ${svgGradient}
                     </linearGradient>
                   </defs>
-                  <rect width="24" height="24" fill="url(#grad1)" />
+                  <rect width="24" height="24" fill="url(#${'grad-' + layerCode})" />
                 </svg>
             `
         };
@@ -809,9 +883,6 @@
             mapLayers[layerCode]['layer'][layerComponent]['imageSource'].setOpacity(mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['opacity']);
             map.addLayer(mapLayers[layerCode]['layer'][layerComponent]['imageSource']);
         };
-        //Add SVG icons for legend
-        console.log($('#' + layerCode).find('.workspace-layer-icon-container'))
-        console.log($($('#' + layerCode).find('.workspace-layer-icon-container')))
         $('#' + layerCode).find('.workspace-layer-icon-container').html(getLegendSVG(layerCode))
         $('#' + layerCode).find('.layer-symbology-container').eq(0).html(getSymbologyMenuHTML(layerType)); 
         if (layerType === 'polygon') {
@@ -821,6 +892,11 @@
         if (layerType === 'line') {
             addColorPicker('.line-color', mapLayers[layerCode]['layer']['stroke']['symbologyData']['color']);
         };
+        if (layerType === 'point') {
+            addColorPicker('.point-fill-color', mapLayers[layerCode]['layer']['fill']['symbologyData']['color']);
+            addColorPicker('.point-border-color', mapLayers[layerCode]['layer']['stroke']['symbologyData']['color']);
+        };
+        mapReorderLayers();
         return
     };
 
@@ -832,7 +908,7 @@
     mapReorderLayers = function() {
         $('.workspace-layer-list li').each(function(i) {
             layerCode = $(this).attr('id').toString()
-            if (typeof mapLayers[layerCode]['layer'] != 'undefined') {
+            if (typeof mapLayers[layerCode] != 'undefined') {
                 for (layerComponent in mapLayers[layerCode]['layer']) {
                     zIndex = 10000 - i * 3 - mapLayers[layerCode]['layer'][layerComponent]['zIndex'];
                     mapLayers[layerCode]['layer'][layerComponent]['imageSource'].setZIndex(10000 - i);
@@ -1194,7 +1270,7 @@
     };
 
     updateColorMap = function(evt) {
-        layerCode = $(this).parents(':eq(3)').attr('id');
+        layerCode = $(this).parents(':eq(4)').attr('id');
         layerComponent = 'raster';
         mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['colorMap'] = $(this).val();
         mapLayers[layerCode]['layer'][layerComponent]['rasterSource'].changed(); 
@@ -1209,16 +1285,56 @@
             layerComponent = 'stroke'
             mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['width'] = $(this).val()
             symbologyData = mapLayers[layerCode]['layer'][layerComponent]['symbologyData']
+            sldString = getSLDString(layerType, layerWorkspace, layerCode, layerComponent, symbologyData);
+            mapLayers[layerCode]['layer'][layerComponent]['layerSource'].updateParams({'SLD_BODY': sldString});
+            mapLayers[layerCode]['layer'][layerComponent]['imageSource'].getSource().changed()
         };
         if ($(evt.target).hasClass('line-thickness')) {
             layerType = 'line'
             layerComponent = 'stroke'
             mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['width'] = $(this).val()
             symbologyData = mapLayers[layerCode]['layer'][layerComponent]['symbologyData']
+            sldString = getSLDString(layerType, layerWorkspace, layerCode, layerComponent, symbologyData);
+            mapLayers[layerCode]['layer'][layerComponent]['layerSource'].updateParams({'SLD_BODY': sldString});
+            mapLayers[layerCode]['layer'][layerComponent]['imageSource'].getSource().changed()
         };
-        sldString = getSLDString(layerType, layerWorkspace, layerCode, layerComponent, symbologyData);
-        mapLayers[layerCode]['layer'][layerComponent]['layerSource'].updateParams({'SLD_BODY': sldString});
-        mapLayers[layerCode]['layer'][layerComponent]['imageSource'].getSource().changed()
+
+        if ($(evt.target).hasClass('point-shape')) {
+            layerType = 'point'
+            mapLayers[layerCode]['layer']['fill']['symbologyData']['shape'] = $(this).val()
+            mapLayers[layerCode]['layer']['stroke']['symbologyData']['shape'] = $(this).val()
+            symbologyData = mapLayers[layerCode]['layer']['fill']['symbologyData']
+            sldString = getSLDString(layerType, layerWorkspace, layerCode, 'fill', symbologyData);
+            mapLayers[layerCode]['layer']['fill']['layerSource'].updateParams({'SLD_BODY': sldString});
+            mapLayers[layerCode]['layer']['fill']['imageSource'].getSource().changed()
+            symbologyData = mapLayers[layerCode]['layer']['stroke']['symbologyData']
+            sldString = getSLDString(layerType, layerWorkspace, layerCode, 'stroke', symbologyData);
+            mapLayers[layerCode]['layer']['stroke']['layerSource'].updateParams({'SLD_BODY': sldString});
+            mapLayers[layerCode]['layer']['stroke']['imageSource'].getSource().changed()
+            $('#' + layerCode).find('.workspace-layer-icon-container').html(getLegendSVG(layerCode))
+        };
+        if ($(evt.target).hasClass('point-size')) {
+            layerType = 'point'
+            mapLayers[layerCode]['layer']['fill']['symbologyData']['size'] = $(this).val()
+            mapLayers[layerCode]['layer']['stroke']['symbologyData']['size'] = $(this).val()
+            symbologyData = mapLayers[layerCode]['layer']['fill']['symbologyData']
+            sldString = getSLDString(layerType, layerWorkspace, layerCode, 'fill', symbologyData);
+            mapLayers[layerCode]['layer']['fill']['layerSource'].updateParams({'SLD_BODY': sldString});
+            mapLayers[layerCode]['layer']['fill']['imageSource'].getSource().changed()
+            symbologyData = mapLayers[layerCode]['layer']['stroke']['symbologyData']
+            sldString = getSLDString(layerType, layerWorkspace, layerCode, 'stroke', symbologyData);
+            mapLayers[layerCode]['layer']['stroke']['layerSource'].updateParams({'SLD_BODY': sldString});
+            mapLayers[layerCode]['layer']['stroke']['imageSource'].getSource().changed()
+        };
+        if ($(evt.target).hasClass('point-border-thickness')) {
+            layerType = 'point'
+            layerComponent = 'stroke'
+            mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['width'] = $(this).val()
+            symbologyData = mapLayers[layerCode]['layer'][layerComponent]['symbologyData']
+            sldString = getSLDString(layerType, layerWorkspace, layerCode, layerComponent, symbologyData);
+            mapLayers[layerCode]['layer'][layerComponent]['layerSource'].updateParams({'SLD_BODY': sldString});
+            mapLayers[layerCode]['layer'][layerComponent]['imageSource'].getSource().changed()
+        };
     };
 
 
@@ -1311,6 +1427,12 @@
 
     $(document).on('change', '.line-thickness', updateLayerSLD);
 
+    $(document).on('change', '.point-shape', updateLayerSLD);
+
+    $(document).on('change', '.point-size', updateLayerSLD);
+
+    $(document).on('change', '.point-border-thickness', updateLayerSLD);
+
     $(document).on('dblclick', '.workspace-layer-name', changeDisplayName);
 
     $(document).on('click', '.edit-layer-name', changeDisplayName);
@@ -1326,6 +1448,6 @@
     initMap();
 
 
-}());
+//}());
 
 
