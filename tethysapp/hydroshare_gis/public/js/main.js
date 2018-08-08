@@ -8,6 +8,7 @@
 
     var map;
     var mapLayers = {};
+    var currentSearchResults = {};
 
 
     /******************************************************
@@ -74,6 +75,37 @@
             layers: [bingBaseMap]
         });
         updateMapSize();
+    };
+
+    /* Initializes the OpenLayers map */
+    initDetailMap = function() {
+        var bingMapKey = 'eLVu8tDRPeQqmBlKAjcw~82nOqZJe2EpKmqd-kQrSmg~AocUZ43djJ-hMBHQdYDyMbT-Enfsk0mtUIGws1WeDuOvjY4EXCH-9OK3edNLDgkc';
+        var initialMapCenter = ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857');
+        var initialZoomLevel = 1.8;
+        var minZoomLevel = 1.8;
+        var maxZoomLevel = 19;
+        var bingBaseMap = new ol.layer.Tile({
+            source: new ol.source.OSM()
+        });
+        map = new ol.Map({
+            target: 'detail-map',
+            interactions: ol.interaction.defaults({
+                dragPan: false,
+                mouseWheelZoom: false
+            }),
+            controls : ol.control.defaults({
+                attribution : false,
+                zoom : false,
+            }),
+            view: new ol.View({
+                center: initialMapCenter,
+                zoom: initialZoomLevel,
+                minZoom: minZoomLevel,
+                maxZoom: maxZoomLevel
+            }),
+            layers: [bingBaseMap]
+        });
+        //updateMapSize();
     };
 
     getSymbologyFunction = function(symbologyFunctionName) {
@@ -836,10 +868,17 @@
     }
 
     /* Adds layer to OpenLayers map */
-    addLayerToMap = function(layerType, layerWorkspace, layerCode, layerData) {
+    addLayerToMap = function(layerData) {
+        layerWorkspace = layerData['workspace']
+        layerCode = layerData['layer_code']
+        layerType = layerData['layer_type']
         mapLayers[layerCode] = getLayerObject(layerType);
+        mapLayers[layerCode]['bbox'] = layerData['bounding_box']
+        mapLayers[layerCode]['fileName'] = layerData['file_name']
+        if (layerType === 'polygon' || layerType === 'point' || layerType === 'line') {
+            mapLayers[layerCode]['properties'] = layerData['properties'] 
+        };
         for (var layerComponent in mapLayers[layerCode]['layer']) {
-            mapLayers[layerCode]['bbox'] = layerData['bbox']
             if (layerType === 'raster') {
                 mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['rasterMax'] = layerData['raster_max']
                 mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['rasterMin'] = layerData['raster_min']
@@ -932,7 +971,7 @@
     /* Uploads layer files to the server */
     ajaxAddLayer = function(data) {
         $.ajax({
-            url: '/apps/hydroshare-gis/ajax-add-layer/',
+            url: '/apps/hydroshare-gis/ajax-add-local-layer/',
             type: 'POST',
             headers: {'X-CSRFToken': getCookie('csrftoken')},
             data: data,
@@ -954,11 +993,8 @@
                 if (response['success'] === 'false') {
                     // call function "addLayerError"
                 } else {
-                    var layerType = response['results']['layer_type'];
-                    var layerWorkspace = response['results']['workspace'];
-                    var layerCode = response['results']['layer_code'];
-                    var layerData = response['results']['layer_data'];
-                    addLayerToMap(layerType, layerWorkspace, layerCode, layerData);
+                    var layerData = response['results'];
+                    addLayerToMap(layerData);
                 }
             }
         });
@@ -970,6 +1006,28 @@
         $('#' + layerCode).find('img').attr('src', '/static/hydroshare_gis/images/error-icon.png')
     };
 
+    /* Uploads HydroShare files */
+    uploadHydroshareFiles = function(evt) {
+        var hydroshareId = $(this).parents(':eq(0)').attr('resid')
+        var layerName = currentSearchResults[hydroshareId]['resource_title']
+        resType = currentSearchResults[hydroshareId]['resource_type']
+        if (resType === 'RasterResource') {
+            var fileType = "geotiff"
+        };
+        if (resType === 'GeographicFeatureResource') {
+            var fileType = "shapefile"
+        };
+        var layerCode = generateLayerCode();
+        var data = new FormData();
+        data.append('layerSource', 'hydroshare')
+        data.append('hydroshareId', hydroshareId);
+        data.append('layerCode', layerCode);
+        data.append('fileType', fileType);
+        data.append('layerName', layerName);
+        addLayerLoadingSlide(layerCode, layerName);
+        ajaxAddLayer(data)
+    };
+
     /* Retrieves user uploaded files */
     uploadLocalFiles = function() {
         var fileType = $('.local-file-select').val()
@@ -979,37 +1037,40 @@
         } else {
             var layerName = data.get('layerName').toString()
             var layerCode = data.get('layerCode').toString()
-            var loadingGif = '{% static "hydroshare_gis/images/spinning_icon.gif" %}'
-            var layerLoadingSlide = `
-                <li id="${layerCode}" data-layer-type="" class="workspace-layer-container workspace-layer-container-hover">
-                    <div class="layer-control-container">
-                        <div class="workspace-layer-icon-container">
-                            <img class="workspace-layer-icon" src="/static/hydroshare_gis/images/spinning_icon.gif">
-                        </div>
-                        <div class="workspace-layer-name-container">
-                            <div class="workspace-layer-name">${layerName}</div>
-                        </div>
-                        <div class="context-menu-toggle" disabled>
-                            <span class="glyphicon glyphicon-menu-hamburger dropdown-span"></span>
-                        </div>
-                        <div class="context-menu-wrapper" hidden>
-                            <div class="context-menu">
-                                <div class="context-menu-button edit-layer-symbology">Edit Symbology</div>  
-                                <div class="context-menu-button edit-layer-visibility layer-visible">Hide Layer</div>   
-                                <div class="context-menu-button edit-layer-name">Rename Layer</div>                         
-                                <div class="context-menu-button view-table">View Attribute Table</div>
-                                <div class="context-menu-button zoom-to-layer">Zoom to Layer</div>
-                                <div class="context-menu-button view-on-hydroshare">View on HydroShare</div>                                
-                                <div class="context-menu-button remove-layer">Remove Layer</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="layer-symbology-container"></div>
-                </li>
-            `
-            $(".workspace-layer-list").append(layerLoadingSlide);               
+            addLayerLoadingSlide(layerCode, layerName)               
             ajaxAddLayer(data);
         };
+    };
+
+    addLayerLoadingSlide = function(layerCode, layerName) {
+        var layerLoadingSlide = `
+            <li id="${layerCode}" data-layer-type="" class="workspace-layer-container workspace-layer-container-hover">
+                <div class="layer-control-container">
+                    <div class="workspace-layer-icon-container">
+                        <img class="workspace-layer-icon" src="/static/hydroshare_gis/images/spinning_icon.gif">
+                    </div>
+                    <div class="workspace-layer-name-container">
+                        <div class="workspace-layer-name">${layerName}</div>
+                    </div>
+                    <div class="context-menu-toggle" disabled>
+                        <span class="glyphicon glyphicon-menu-hamburger dropdown-span"></span>
+                    </div>
+                    <div class="context-menu-wrapper" hidden>
+                        <div class="context-menu">
+                            <div class="context-menu-button edit-layer-symbology">Edit Symbology</div>  
+                            <div class="context-menu-button edit-layer-visibility layer-visible">Hide Layer</div>   
+                            <div class="context-menu-button edit-layer-name">Rename Layer</div>                         
+                            <div class="context-menu-button view-table">View Attribute Table</div>
+                            <div class="context-menu-button zoom-to-layer">Zoom to Layer</div>
+                            <div class="context-menu-button view-on-hydroshare">View on HydroShare</div>                                
+                            <div class="context-menu-button remove-layer">Remove Layer</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layer-symbology-container"></div>
+            </li>
+        `
+        $(".workspace-layer-list").append(layerLoadingSlide);
     };
 
     /* Performs initial file validation and prepares files for upload */
@@ -1069,6 +1130,7 @@
         var layerCode = generateLayerCode();
         Object.keys(files).forEach(function (file) {
             data.append('files', files[file]);
+            data.append('layerSource', 'client')
             data.append('layerCode', layerCode);
             data.append('fileType', fileType);
             data.append('layerName', layerName);
@@ -1142,6 +1204,7 @@
             $('#workspace-tab-content').hide();
             $('#nav-pane-workspace-tab-toggle').css('background-color', '#D3D3D3');
             $('#search-tab-content').show();
+            $('#search-tab-content').css('display', 'flex');         
             $('#nav-pane-search-tab-toggle').css('background-color', '#FFFFFF');
         };
         if ($(this).attr('id') === 'nav-pane-workspace-tab-toggle') {
@@ -1337,6 +1400,111 @@
         };
     };
 
+    appendSearchResultsToList = function(searchResults) {
+        $(".search-results-list").empty();
+        for (var i in searchResults) {
+            currentSearchResults[searchResults[i]['resource_id']] = searchResults[i]
+            var searchResultSlide = `
+                <li id="${searchResults[i]['resource_id']}" class="search-result-container">
+                    <div class="search-result">
+                        <div class="search-result-icon-container">
+                            <img class="search-result-icon" src="/static/hydroshare_gis/images/${searchResults[i]['resource_type']}.png">
+                        </div>
+                        <div class="search-result-name">${searchResults[i]['resource_title']}</div>
+                        <div hidden></div>
+                    </div>
+                </li>
+            `
+            $(".search-results-list").append(searchResultSlide);
+        };
+    };
+
+    ajaxSearchHydroShare = function(data) {
+        $.ajax({
+            url: '/apps/hydroshare-gis/ajax-search-hydroshare/',
+            type: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            data: data,
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            error: function () {
+                console.log("Error")
+            },
+            success: function (response) {
+                if (response['success'] === 'false') {
+                    // call function "addLayerError"
+                } else {
+                    searchResults = response['results']['results']
+                    lastPage = response['results']['last_page']
+                    page = response['results']['page']
+                    console.log(lastPage)
+                    console.log(page)
+                    if (lastPage === 'true') {
+                        $('#search-results-next').prop('disabled', true)
+                    } else {
+                        $('#search-results-next').prop('disabled', false)                    
+                    };
+                    if (parseInt(page) === 1) {
+                        console.log("Disable Previous")
+                        $('#search-results-previous').prop('disabled', true)
+                    } else {
+                        $('#search-results-previous').prop('disabled', false)
+                    };
+                    $('.search-results-list').attr('page', page)
+                    appendSearchResultsToList(searchResults)
+                }
+            }
+        });
+    };
+
+    searchHydroshare = function(evt) {
+        if (evt.keyCode == 13 || evt.type == 'click') {
+            data = new FormData();
+            data.append('searchInput', $('#search-input').val());
+            data.append('page', 1)
+            ajaxSearchHydroShare(data);
+        };
+    };
+
+    changeSearchPage = function(evt) {
+        $('#search-results-next').prop('disabled', true) 
+        $('#search-results-previous').prop('disabled', true)
+        page = parseInt($('.search-results-list').attr('page'))
+        if ($(this).attr('id') === 'search-results-next') {
+            newPage = page + 1
+        };
+        if ($(this).attr('id') === 'search-results-previous') {
+            newPage = page - 1
+        }; 
+        data = new FormData();
+        data.append('searchInput', $('#search-input').val());
+        data.append('page', newPage)
+        ajaxSearchHydroShare(data);
+    };
+
+    toggleSearchResultDetails = function(evt) {
+        if ($(this).hasClass('search-result-container')) {
+            resourceData = currentSearchResults[$(this).attr('id')]
+            console.log(resourceData)
+            $('#detail-resource-name').text(resourceData['resource_title']);
+            $('#detail-resource-creator').text(resourceData['creator']);
+            $('#detail-resource-type').text(resourceData['resource_type']);
+            $('#detail-resource-created').text(resourceData['date_created']);
+            $('#detail-resource-updated').text(resourceData['date_last_updated']);
+            $('#detail-resource-abstract').text(resourceData['abstract']);
+            $('.search-result-details').attr('resid', resourceData['resource_id'])
+            $('.search-results-list').hide();
+            $('.search-results-footer').hide();
+            $('.search-result-details').show();
+        };
+        if ($(this).hasClass('exit-search-result-details')) {
+            $('.search-result-details').hide(); 
+            $('.search-results-list').show();
+            $('.search-results-footer').show();     
+        };
+    };
+
 
 
     /******************************************************
@@ -1437,7 +1605,21 @@
 
     $(document).on('click', '.edit-layer-name', changeDisplayName);
 
-    $(document).on('click', '#upload-file-button', uploadLocalFiles)
+    $(document).on('click', '#upload-file-button', uploadLocalFiles);
+
+    $('.search-bar-container').on('keyup', '.search-bar-input', searchHydroshare)
+
+    $(document).on('click', '.glyphicon', searchHydroshare);
+
+    $(document).on('click', '#search-results-next', changeSearchPage);
+
+    $(document).on('click', '#search-results-previous', changeSearchPage);
+
+    $(document).on('click', '.search-result-container', toggleSearchResultDetails);
+
+    $(document).on('click', '.exit-search-result-details', toggleSearchResultDetails);
+
+    $(document).on('click', '.add-hydroshare-resource-to-workspace', uploadHydroshareFiles);
 
 
     /*****************************************************************************************
@@ -1445,6 +1627,7 @@
      *****************************************************************************************/
 
     initLayerList();
+    initDetailMap();
     initMap();
 
 

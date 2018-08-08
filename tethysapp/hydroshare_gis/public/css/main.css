@@ -88,6 +88,8 @@
 
 /* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
 
+.disabled { cursor: not-allowed; }
+
 
 /* ============================================================== */
 /* ============================================================== */
@@ -106,6 +108,7 @@
 
 /* Style the tab navigation container*/
 .nav-pane-tab-selector {
+    flex-shrink: 0;
     overflow: hidden;
     border: 0px;
     background-color: #f1f1f1;
@@ -152,6 +155,7 @@
 /* :::::::::::::::::: Workspace Section Headers ::::::::::::::::: */
 
 .workspace-section-header {
+    flex-shrink: 0;
     overflow: hidden;
     padding-left: 10px;
     padding-right: 10px;
@@ -159,7 +163,8 @@
     padding-bottom: 2px;
     background-color: #FFFFFF;
     width: 100%;
-    height: 50px;
+    height: 51px;
+    border-bottom: 1px solid lightgray;
 }
 
 /* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
@@ -184,6 +189,7 @@
 .tab-action-list {
     background-color: #D3D3D3;
     padding: 3px;
+    flex-shrink: 0;
 }
 
 .action-button {
@@ -228,32 +234,164 @@
     padding-top: 8px;
     background-color: #FFFFFF;
     width: 100%;
-    height: 50px;
+    height: 51px;
+    border-bottom: 1px solid lightgray;
+    flex-shrink: 0;
 }
 
 .search-bar-input {
     outline: none;
+    margin: 6px;
     background-color: whitesmoke;
     border: none;
-    width: 80%;
+    width: 178px;
     font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 
 .search-bar-container:focus-within {
+    /*
     border: 1px solid #2196F3;
     box-shadow: 0px 0px 2px 0px #2196F3;
+    */
 }
 
 .search-bar-container {
-    padding-left: 25px;
-    padding: 5px;
     font-size: 16px;
-    border-radius: 8px;
+    /*border-radius: 8px;*/
     border: solid;
     border-color: lightgray;
-    border-width: 1px;
+    border-width: 0px;
     width: 100%;
     background-color: whitesmoke;
+}
+
+.search-bar-filter-container {
+    float: right;
+    height: 24px;
+    width: 44px;
+    padding-top: 2px;
+    padding-left: 13px;
+    padding-right: 13px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    border-right: 1px solid;
+    border-right-color: gray;
+}
+
+.glyphicon-filter {
+    font-size: 18px;
+}
+
+.glyphicon-filter:hover {
+    color: #6699ff;
+    cursor: pointer;
+}
+
+.search-bar-search-container {
+    float: right;
+    height: 24px;
+    width: 44px;
+    padding-top: 2px;
+    padding-left: 13px;
+    padding-right: 13px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.glyphicon-search {
+    font-size: 18px;
+}
+
+.glyphicon-search:hover {
+    color: #6699ff;
+    cursor: pointer;
+}
+
+.search-results-list {
+    overflow: hidden;
+    padding: 0;
+    background-color: #D3D3D3;
+    width: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.search-result-container {
+    padding-left: 5%;
+    padding-right: 5%;
+    height: 62px;
+    width: 100%;
+    background-color: whitesmoke;
+    overflow: hidden;
+}
+
+.search-result-container:hover {
+    background-color: #E8E8E8;
+}
+
+.search-result {
+    border-bottom: 1px solid lightgray;
+    height: 100%;
+    width: 100%;
+    display: table;
+}
+
+.search-result-name {
+    display: table-cell;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result-icon {
+    margin-top: 11px;
+    margin-bottom: 11px;
+    margin-right: 15px;
+    height: 36px;
+}
+
+.search-result-icon-container {
+    padding-top: 2px;
+    padding-bottom: 1px;
+}
+
+.search-result-details {
+    overflow: hidden;
+    background-color: whitesmoke;
+    width: 100%;
+    overflow-y: auto;
+    flex-grow: 1; 
+}
+
+.search-results-footer {
+    height: 50px;
+    width: 100%;
+    background-color: white;
+    flex-shrink: 0;
+    border-top: 1px solid lightgray;
+}
+
+.search-page-button {
+    float: left;
+    height: 25px;
+    width: 106px;
+    margin-top: 12.5px;
+    margin-bottom: 12.5px;
+    margin-left: 21px;
+    margin-right: 21px;
+}
+
+.search-page-button:disabled {
+    cursor: not-allowed; 
+}
+
+.resource-detail-container {
+    margin: 20px;
+}
+
+#detail-resource-name {
+    padding-bottom: 10px;
+    border-bottom: 1px solid lightgray;
 }
 
 /* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */

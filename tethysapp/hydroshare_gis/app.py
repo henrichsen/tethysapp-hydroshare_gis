@@ -33,9 +33,14 @@ class HydroshareGis(TethysAppBase):
                 controller='hydroshare_gis.controllers.home'
             ),
             UrlMap(
-                name='add-layer',
-                url='hydroshare-gis/ajax-add-layer',
-                controller='hydroshare_gis.ajax_controllers.ajax_add_layer'
+                name='add-local-layer',
+                url='hydroshare-gis/ajax-add-local-layer',
+                controller='hydroshare_gis.ajax_controllers.ajax_add_local_layer'
+            ),
+            UrlMap(
+                name='search-hydroshare',
+                url='hydroshare-gis/ajax-search-hydroshare',
+                controller='hydroshare_gis.ajax_controllers.ajax_search_hydroshare'
             ),
         )
 

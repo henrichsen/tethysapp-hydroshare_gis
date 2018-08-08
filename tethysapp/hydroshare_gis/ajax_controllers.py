@@ -2,17 +2,151 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import os
 import rasterio
-import fiona
 import numpy as np
-from .utilities import get_user_workspace
+
+from .utilities import get_user_workspace, upload_feature_to_geoserver, \
+    convert_geojson_to_shapefile, upload_raster_to_geoserver, convert_netcdf_to_geotiff, \
+    save_files_to_workspace, create_timeseries_shapefile, validate_shapefile, \
+    validate_geotiff, get_hydroshare_files, get_search_results
+
 from .app import HydroshareGis as app
 
 
-WORKSPACE = "hs_gis"
-GEOSERVER_URI = "http://www.example.com/hydroshare-gis"
+def ajax_add_local_layer(request):
+
+    return_obj = {
+        "success": None,
+        "message": None,
+        "results": None
+    }
+
+    # -------------------- #
+    #   VERIFIES REQUEST   #
+    # -------------------- #
+
+    if not (request.is_ajax() and request.method == "POST"):
+
+        return_obj["success"] = "false"
+        return_obj["message"] = "Unable to communicate with server."
+        return_obj["results"] = {}
+
+        return JsonResponse(return_obj)
+
+    # ----------------------------- #
+    #   GETS DATA FROM JAVASCRIPT   #
+    # ----------------------------- #
+
+    layer_source = str(request.POST.get('layerSource'))
+    layer_code = str(request.POST.get('layerCode'))
+    file_type = str(request.POST.get('fileType'))
+
+    # --------------------------- #
+    #   PROCESSES UPLOADED DATA   #
+    # --------------------------- #
+
+    user_workspace = get_user_workspace(request)
+
+    layer_directory = os.path.join(user_workspace, layer_code)
+    if not os.path.exists(layer_directory):
+        os.makedirs(os.path.join(layer_directory, "original"))
+        os.makedirs(os.path.join(layer_directory, "data"))
+
+    if layer_source == "client":
+        file_list = request.FILES.getlist('files')
+        save_files_to_workspace(layer_directory, file_list)
+
+    elif layer_source == "hydroshare":
+        hydroshare_id = str(request.POST.get('hydroshareId'))
+        get_hydroshare_files(layer_directory, hydroshare_id)
+
+    else:
+        errorLog = "Unable to process layer source: " + layer_source
+        raise Exception(errorLog)       
+
+    if file_type == "shapefile":
+        validate_shapefile(layer_directory)
+        layer_results = upload_feature_to_geoserver(layer_directory)
+
+    elif file_type == "geojson":
+        convert_geojson_to_shapefile(layer_directory)
+        layer_results = upload_feature_to_geoserver(layer_directory)
+
+    elif file_type == "geotiff":
+        validate_geotiff(layer_directory)
+        layer_results = upload_raster_to_geoserver(layer_directory)
+
+    elif file_type == "netcdf":
+        convert_netcdf_to_geotiff(layer_directory)
+        layer_results = upload_raster_to_geoserver(layer_directory)
+
+    elif file_type == "odm2":
+        create_timeseries_shapefile(layer_directory)
+        layer_results = upload_feature_to_geoserver(layer_directory)
+
+    elif file_type == "refts":
+        create_timeseries_shapefile(layer_directory)
+        layer_results = upload_feature_to_geoserver(layer_directory)
+
+    else:
+        errorLog = "Unable to process file type: " + file_type
+        raise Exception(errorLog)
+
+    # -------------------------- #
+    #   RETURNS DATA TO CLIENT   #
+    # -------------------------- #
+
+    return_obj["success"] = "true"
+    return_obj["message"] = "Layer successful uploaded to GeoServer"
+    return_obj["results"] = layer_results
+
+    return JsonResponse(return_obj)
 
 
-def ajax_add_layer(request):
+def ajax_search_hydroshare(request):
+
+    return_obj = {
+        "success": None,
+        "message": None,
+        "results": None
+    }
+
+    # -------------------- #
+    #   VERIFIES REQUEST   #
+    # -------------------- #
+
+    if not (request.is_ajax() and request.method == "POST"):
+
+        return_obj["success"] = "false"
+        return_obj["message"] = "Unable to communicate with server."
+        return_obj["results"] = {}
+
+        return JsonResponse(return_obj)
+
+    # ----------------------------- #
+    #   GETS DATA FROM JAVASCRIPT   #
+    # ----------------------------- #
+
+    search_input = request.POST.get('searchInput')
+    page = request.POST.get('page')
+
+    # ----------------------- #
+    #   GETS SEARCH RESULTS   #
+    # ----------------------- #
+
+    search_results = get_search_results(search_input, page)
+
+    # -------------------------- #
+    #   RETURNS DATA TO CLIENT   #
+    # -------------------------- #
+
+    return_obj["success"] = "true"
+    return_obj["message"] = "Search results obtained"
+    return_obj["results"] = search_results
+
+    return JsonResponse(return_obj)
+
+
+def ajax_get_attribute_table(request):
 
     return_obj = {
         "success": "",
@@ -36,113 +170,27 @@ def ajax_add_layer(request):
     #   GETS DATA FROM JAVASCRIPT   #
     # ----------------------------- #
 
-    file_list = request.FILES.getlist('files')
     layer_code = str(request.POST.get('layerCode'))
-    file_type = str(request.POST.get('fileType'))
 
     user_workspace = get_user_workspace(request)
 
-    layer_dir = os.path.join(user_workspace, layer_code)
-    if not os.path.exists(layer_dir):
-        os.makedirs(layer_dir)
 
-    for n, uploaded_file in enumerate(file_list):
-        with open(os.path.join(layer_dir, uploaded_file.name), 'w+') as destination:
-            for chunk in file_list[n].chunks():
-                destination.write(chunk)
 
-    geoserver_engine = app.get_spatial_dataset_service(name='default_geoserver', as_engine=True)
 
-    response = geoserver_engine.list_workspaces()
 
-    if response['success']:
-        workspaces = response['result']
 
-        if WORKSPACE not in workspaces:
-            geoserver_engine.create_workspace(workspace_id=WORKSPACE, uri=GEOSERVER_URI)
 
-    store_id = WORKSPACE + ':' + layer_code
 
-    if file_type == "shapefile":
 
-        res_base = os.path.join(layer_dir, ".".join(str(file_list[0]).split(".")[:-1]))
 
-        with fiona.open(res_base + ".shp") as source:
-            layer_type = str(source[0]['geometry']['type']).lower()
-            if layer_type in ['multipolygon']:
-                layer_type = 'polygon'
-            if layer_type in ['multiline', 'linestring']:
-                layer_type = 'line'
-        
-        if not layer_type in ["point", "line", "polygon", "raster"]:
-            errorLog = "Layer type [" + layer_type + "] does not match point, line, polygon, or raster."
-            raise Exception(errorLog)
 
-        layer_response = geoserver_engine.create_shapefile_resource(
-            store_id=store_id,
-            shapefile_base=res_base,
-            overwrite=True
-        )
 
-        if layer_response['success'] is True:
-            return_obj["success"] = 'true'
-            return_obj["results"]["workspace"] = WORKSPACE
-            return_obj["results"]["layer_code"] = layer_code
-            return_obj["results"]["layer_type"] = layer_type 
-            return_obj["results"]["layer_data"] = {}
-            return_obj["results"]["layer_data"]["bbox"] = layer_response["result"]["latlon_bbox"]
-            return JsonResponse(return_obj)
 
-        else:
-            return_obj["message"] = "Your shapefile was unable to upload to GeoServer."
-            return JsonResponse(return_obj)
 
-    if file_type == "geojson":
-        return_obj["message"] = "GeoJSON files are not currently supported."
-        return JsonResponse(return_obj)
 
-    if file_type == "geotiff":
 
-        res_file = os.path.join(layer_dir, str(file_list[0]))
 
-        with rasterio.open(res_file) as src:
-            array = src.read()
-            raster_ndv = src.meta['nodata']
-            if raster_ndv is not None:
-                array = src.read()
-                masked_array = np.ma.masked_equal(array, raster_ndv)
-            else:
-                masked_array = array
 
-            raster_max = masked_array[0].max()
-            raster_min = masked_array[0].min()
 
-        layer_response = geoserver_engine.create_coverage_resource(
-            store_id=store_id,
-            coverage_file=res_file,
-            coverage_type="geotiff",
-            overwrite=True,
-        )
 
-        layer_type = "raster"
-
-        if layer_response['success'] is True:
-            return_obj["success"] = 'true'
-            return_obj["results"]["workspace"] = WORKSPACE
-            return_obj["results"]["layer_code"] = layer_code
-            return_obj["results"]["layer_type"] = layer_type
-            return_obj["results"]["layer_data"] = {}
-            return_obj["results"]["layer_data"]["bbox"] = layer_response["result"]["latlon_bbox"]
-            return_obj["results"]["layer_data"]["raster_max"] = str(raster_max)
-            return_obj["results"]["layer_data"]["raster_min"] = str(raster_min)
-            return_obj["results"]["layer_data"]["raster_ndv"] = str(raster_ndv)
-            return JsonResponse(return_obj)
-
-        else:
-            return_obj["message"] = "Your GeoTiff file was unable to upload to GeoServer."
-            return JsonResponse(return_obj)
-
-    if file_type == "netcdf":
-        return_obj["message"] = "NetCDF files are not currently supported."
-        return JsonResponse(return_obj)
 

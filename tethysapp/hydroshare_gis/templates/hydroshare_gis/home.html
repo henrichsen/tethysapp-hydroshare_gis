@@ -18,10 +18,65 @@
 <div id="search-tab-content" class="nav-tab-content">
   <div class="search-nav-header">
     <div class="search-bar-container">
-      <input class="search-bar-input" type="text" placeholder="Search HydroShare...">
-      <span class="glyphicon glyphicon-filter"></span>
-      <span class="glyphicon glyphicon-search"></span>
+      <input id="search-input" class="search-bar-input" type="text" placeholder="Search HydroShare...">
+      <div class="search-bar-search-container">
+        <span id="search-button" class="glyphicon glyphicon-search"></span>
+      </div>
+      <div class="search-bar-filter-container">
+        <span class="glyphicon glyphicon-filter"></span>
+      </div>
     </div>
+  </div>
+  <ul class="search-results-list" page=""></ul>
+  <div class="search-results-footer">
+    <button id="search-results-previous" class="search-page-button" disabled>Previous Page</button>
+    <button id="search-results-next" class="search-page-button" disabled>Next Page</button>
+  </div>
+  <div class="search-result-details" resid="" hidden>
+    <div id="detail-map" style="width: 200px; height: 200px" hidden></div>
+    <div class="resource-detail-container">
+      <h4 id="detail-resource-name"></h4>
+      <h6>Resource Details:</h6>
+      <table style="width:100%">
+        <tr>
+          <td>
+            <h7>
+              <b>Creator:</b>
+            </h7>
+          </td>
+          <td id="detail-resource-creator"></td> 
+        </tr>
+        <tr>
+          <td>
+            <h7>
+              <b>Resource Type:</b>
+            </h7>
+          </td>
+          <td id="detail-resource-type"></td> 
+        </tr>
+        <tr>
+          <td>
+            <h7>
+              <b>Created:</b>
+            </h7>
+          </td>
+          <td id="detail-resource-created"></td> 
+        </tr>
+        <tr>
+          <td>
+            <h7>
+              <b>Last Updated:</b>
+            </h7>
+          </td>
+          <td id="detail-resource-updated"></td> 
+        </tr>
+      </table>
+      <h6>Resource Abstract:</h6>
+      <div id="detail-resource-abstract"></div>
+    </div>
+    <br>
+    <button class="exit-search-result-details search-page-button">Go Back</button>
+    <button class="add-hydroshare-resource-to-workspace search-page-button">Add Layer</button>
   </div>
 </div>
 
@@ -30,7 +85,7 @@
     <h5>Layers</h5>
   </div>
   <ul class="workspace-layer-list sortable"></ul>
-  <div class="workspace-section-header">
+  <div class="workspace-section-header" style="border-top: 1px solid lightgray">
     <h5>Actions</h5>
   </div>
   <div class="tab-action-list">
