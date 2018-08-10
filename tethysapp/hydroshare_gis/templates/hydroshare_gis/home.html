@@ -12,7 +12,7 @@
 
 <div class="nav-pane-tab-selector">
   <button id="nav-pane-search-tab-toggle" class="tab-nav-button">Discover</button>
-  <button id="nav-pane-workspace-tab-toggle" class="tab-nav-button" active>Workspace</button>
+  <button id="nav-pane-workspace-tab-toggle" class="tab-nav-button">Workspace</button>
 </div>
 
 <div id="search-tab-content" class="nav-tab-content">
@@ -34,7 +34,7 @@
   </div>
   <div class="search-result-details" resid="" hidden>
     <div id="detail-map" style="width: 200px; height: 200px" hidden></div>
-    <div class="resource-detail-container">
+    <div class="resource-detail-container" resIndex="">
       <h4 id="detail-resource-name"></h4>
       <h6>Resource Details:</h6>
       <table style="width:100%">
@@ -74,7 +74,8 @@
       <h6>Resource Abstract:</h6>
       <div id="detail-resource-abstract"></div>
     </div>
-    <br>
+  </div>
+  <div class="search-details-footer" hidden>
     <button class="exit-search-result-details search-page-button">Go Back</button>
     <button class="add-hydroshare-resource-to-workspace search-page-button">Add Layer</button>
   </div>

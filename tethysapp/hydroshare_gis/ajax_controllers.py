@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import os
+import json
 import rasterio
 import numpy as np
 
@@ -105,9 +106,9 @@ def ajax_add_local_layer(request):
 def ajax_search_hydroshare(request):
 
     return_obj = {
-        "success": None,
+        "success": False,
         "message": None,
-        "results": None
+        "results": {}
     }
 
     # -------------------- #
@@ -116,9 +117,7 @@ def ajax_search_hydroshare(request):
 
     if not (request.is_ajax() and request.method == "POST"):
 
-        return_obj["success"] = "false"
         return_obj["message"] = "Unable to communicate with server."
-        return_obj["results"] = {}
 
         return JsonResponse(return_obj)
 
@@ -126,21 +125,21 @@ def ajax_search_hydroshare(request):
     #   GETS DATA FROM JAVASCRIPT   #
     # ----------------------------- #
 
-    search_input = request.POST.get('searchInput')
-    page = request.POST.get('page')
+    search_filters = json.loads(request.POST.get('searchFilters'))
+    page_number = request.POST.get('pageNumber')
 
     # ----------------------- #
     #   GETS SEARCH RESULTS   #
     # ----------------------- #
 
-    search_results = get_search_results(search_input, page)
+    search_results = get_search_results(search_filters, page_number)
 
     # -------------------------- #
     #   RETURNS DATA TO CLIENT   #
     # -------------------------- #
 
-    return_obj["success"] = "true"
-    return_obj["message"] = "Search results obtained"
+    return_obj["success"] = True
+    return_obj["message"] = "Search results obtained successfully."
     return_obj["results"] = search_results
 
     return JsonResponse(return_obj)

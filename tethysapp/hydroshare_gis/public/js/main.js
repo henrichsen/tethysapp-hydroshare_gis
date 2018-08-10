@@ -9,6 +9,7 @@
     var map;
     var mapLayers = {};
     var currentSearchResults = {};
+    var currentSearchParameters = {};
 
 
     /******************************************************
@@ -42,13 +43,13 @@
      ****************** FUNCTIONS *************************
      ******************************************************/
 
-    /* Runs page initialization functions */
+    /* Initializes sortable workspace layer list */
     initLayerList = function() {
-
-        $('.sortable').sortable({axis: 'y', update: mapReorderLayers});
+        var axis = 'y';
+        $('.sortable').sortable({axis: axis, update: mapReorderLayers});
     };
 
-    /* Initializes the OpenLayers map */
+    /* Initializes the main OpenLayers map */
     initMap = function() {
         var bingMapKey = 'eLVu8tDRPeQqmBlKAjcw~82nOqZJe2EpKmqd-kQrSmg~AocUZ43djJ-hMBHQdYDyMbT-Enfsk0mtUIGws1WeDuOvjY4EXCH-9OK3edNLDgkc';
         var initialMapCenter = ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857');
@@ -77,18 +78,17 @@
         updateMapSize();
     };
 
-    /* Initializes the OpenLayers map */
-    initDetailMap = function() {
-        var bingMapKey = 'eLVu8tDRPeQqmBlKAjcw~82nOqZJe2EpKmqd-kQrSmg~AocUZ43djJ-hMBHQdYDyMbT-Enfsk0mtUIGws1WeDuOvjY4EXCH-9OK3edNLDgkc';
+    /* Initializes the layer preview OpenLayers map */
+    initPreviewMap = function() {
         var initialMapCenter = ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857');
         var initialZoomLevel = 1.8;
         var minZoomLevel = 1.8;
         var maxZoomLevel = 19;
-        var bingBaseMap = new ol.layer.Tile({
+        var streetBaseMap = new ol.layer.Tile({
             source: new ol.source.OSM()
         });
         map = new ol.Map({
-            target: 'detail-map',
+            target: 'preview-map',
             interactions: ol.interaction.defaults({
                 dragPan: false,
                 mouseWheelZoom: false
@@ -103,10 +103,156 @@
                 minZoom: minZoomLevel,
                 maxZoom: maxZoomLevel
             }),
-            layers: [bingBaseMap]
+            layers: [streetBaseMap]
         });
-        //updateMapSize();
     };
+
+    /* Updates cached search results */
+    updateCurrentSearchResults = function(searchResults, pageNumber, firstPage, lastPage) {
+        currentSearchResults[pageNumber] = {};
+        currentSearchResults[pageNumber]['firstPage'] = firstPage;
+        currentSearchResults[pageNumber]['lastPage'] = lastPage;
+        currentSearchResults[pageNumber]['searchResults'] = searchResults;
+        resultsPage = currentSearchResults[pageNumber];
+        appendSearchResultsToList(resultsPage, pageNumber)
+    };
+
+    /* Appends search results to display list */
+    appendSearchResultsToList = function(resultsPage, pageNumber) {
+        console.log(pageNumber)
+        $('.search-results-list').attr('page', pageNumber)
+        $('.search-results-list').empty();
+        for (var i in resultsPage.searchResults) {
+            var resultsPageSlide = `
+                <li id="${resultsPage.searchResults[i].resource_id}" class="search-result-container">
+                    <div class="search-result">
+                        <div class="search-result-icon-container">
+                            <img class="search-result-icon" src="/static/hydroshare_gis/images/${resultsPage.searchResults[i].resource_type}.png">
+                        </div>
+                        <div class="search-result-name">${resultsPage.searchResults[i].resource_title}</div>
+                        <div hidden></div>
+                    </div>
+                </li>
+            `;
+            $('.search-results-list').append(resultsPageSlide);
+        };
+        $('.search-results-list').scrollTop(0);
+        $('#search-results-next').prop('disabled', resultsPage.lastPage);
+        $('#search-results-previous').prop('disabled', resultsPage.firstPage);
+    };
+
+    /* Requests HydroShare search results from the Tethys server */
+    ajaxSearchHydroShare = function(data) {
+        $.ajax({
+            url: '/apps/hydroshare-gis/ajax-search-hydroshare/',
+            type: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            data: data,
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            error: function () {
+                // call error function
+            },
+            success: function (response) {            
+                if (response.success === false) {
+                    // call error function
+                } else {
+                    var searchResults = response.results.search_results;
+                    var firstPage = response.results.first_page
+                    var lastPage = response.results.last_page;
+                    var pageNumber = response.results.page_number;
+                    updateCurrentSearchResults(searchResults, pageNumber, firstPage, lastPage);
+                }
+            }
+        });
+    };
+
+    /* Retrieves HydroShare search parameters */
+    getHydroShareSearchInput = function(evt) {
+        if (evt.keyCode == 13 || evt.type == 'click') {
+            currentSearchParameters.inputText = $('#search-input').val();
+            currentSearchParameters.authors = [] /*$('#filter-authors-input:checked').map(function () {
+                                                    return this.name;
+                                                }).get();*/
+            currentSearchParameters.types = [] /*$('#filter-types-input:checked').map(function () {
+                                                    return this.name;
+                                                }).get();*/
+            currentSearchParameters.creators = [] /*$('#filter-creators-input:checked').map(function () {
+                                                    return this.name;
+                                                }).get();*/
+            currentSearchParameters.owners = [] /*$('#filter-owners-input:checked').map(function () {
+                                                    return this.name;
+                                                }).get();*/
+            currentSearchParameters.groups = [] /* $('#filter-groups-input:checked').map(function () {
+                                                    return this.name;
+                                                }).get();*/
+            currentSearchParameters.users = [] /* $('#filter-users-input:checked').map(function () {
+                                                    return this.name;
+                                                }).get();*/
+            currentSearchResults = {};
+            data = new FormData();
+            data.append('searchFilters', JSON.stringify(currentSearchParameters));
+            data.append('pageNumber', 1);
+            ajaxSearchHydroShare(data);
+        }
+    };
+
+    changeSearchPage = function(evt) {
+        $('#search-results-next').prop('disabled', true) 
+        $('#search-results-previous').prop('disabled', true)
+        pageNumber = parseInt($('.search-results-list').attr('page'))
+        if ($(this).attr('id') === 'search-results-next') {
+            updatedPage = pageNumber + 1
+        };
+        if ($(this).attr('id') === 'search-results-previous') {
+            updatedPage = pageNumber - 1
+        }; 
+        if (typeof currentSearchResults[updatedPage.toString()] === 'undefined') {
+            data = new FormData();
+            data.append('searchFilters', JSON.stringify(currentSearchParameters));
+            data.append('pageNumber', updatedPage);
+            ajaxSearchHydroShare(data);
+        } else {
+            resultsPage = currentSearchResults[updatedPage.toString()];
+            appendSearchResultsToList(resultsPage, updatedPage);
+        }
+    };
+
+    toggleSearchResultDetails = function(evt) {
+        if ($(this).hasClass('search-result-container')) {
+            resourceData = currentSearchResults[$('.search-results-list').attr('page')]['searchResults'][$(this).index()]
+            $('.resource-detail-container').attr('resIndex', $(this).index())
+            console.log(":::::::::::::::::::::::::::::::::::::")
+            console.log($(this).index())
+            console.log(":::::::::::::::::::::::::::::::::::::")
+            $('#detail-resource-name').text(resourceData['resource_title']);
+            $('#detail-resource-creator').text(resourceData['creator']);
+            $('#detail-resource-type').text(resourceData['resource_type']);
+            $('#detail-resource-created').text(resourceData['date_created']);
+            $('#detail-resource-updated').text(resourceData['date_last_updated']);
+            $('#detail-resource-abstract').text(resourceData['abstract']);
+            $('.search-result-details').attr('resid', resourceData['resource_id'])
+            $('.search-results-list').hide();
+            $('.search-results-footer').hide();
+            $('.search-result-details').show();
+            $('.search-details-footer').show();
+        };
+        if ($(this).hasClass('exit-search-result-details') || evt === 'hsLayer') {
+            $('.search-details-footer').hide()
+            $('.search-result-details').hide(); 
+            $('.search-results-list').show();
+            $('.search-results-footer').show();     
+        };
+    };
+
+
+
+
+
+
+
+
 
     getSymbologyFunction = function(symbologyFunctionName) {
         var symbologyFunctions = {
@@ -372,27 +518,26 @@
             'raster':`
                 <br>
                 <div>
-                    <label>Color Map:
-                        <div class="symbology-input-container">
-                            <select class="raster-colormap-select">
-                                <option value="gray">Gray</option>
-                                <option value="rainbow">Rainbow</option>
-                                <option value="electric">Electric</option>
-                                <option value="bone">Bone</option>
-                                <option value="blackbody">Blackbody</option>
-                                <option value="viridis">Viridis</option>
-                                <option value="jet">Jet</option>  
-                                <option value="hot">Hot</option>
-                                <option value="cool">Cool</option>
-                                <option value="magma">Magma</option>
-                                <option value="plasma">Plasma</option>   
-                                <option value="spring">Spring</option>
-                                <option value="summer">Summer</option>
-                                <option value="autumn">Autumn</option>
-                                <option value="winter">Winter</option>
-                            </select>
-                        </div>
-                    </label>
+                    <label>Color Map:</label>
+                    <div class="symbology-input-container">
+                        <select class="raster-colormap-select">
+                            <option value="gray">Gray</option>
+                            <option value="rainbow">Rainbow</option>
+                            <option value="electric">Electric</option>
+                            <option value="bone">Bone</option>
+                            <option value="blackbody">Blackbody</option>
+                            <option value="viridis">Viridis</option>
+                            <option value="jet">Jet</option>  
+                            <option value="hot">Hot</option>
+                            <option value="cool">Cool</option>
+                            <option value="magma">Magma</option>
+                            <option value="plasma">Plasma</option>   
+                            <option value="spring">Spring</option>
+                            <option value="summer">Summer</option>
+                            <option value="autumn">Autumn</option>
+                            <option value="winter">Winter</option>
+                        </select>
+                    </div>
                 </div>
                 <br>
                 <button class="exit-symbology-button">Done</button>
@@ -815,7 +960,7 @@
             strokeColor = mapLayers[layerCode]['layer']['stroke']['symbologyData']['color']
             svgIcon = `
                 <svg height="24" width="24">
-                  <polygon points="1,23 5,5 20,1 23,20" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
+                  <polygon class="layer-icon" points="1,23 5,5 20,1 23,20" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
                 </svg>
             `
         };
@@ -823,7 +968,7 @@
             strokeColor = mapLayers[layerCode]['layer']['stroke']['symbologyData']['color']
             svgIcon = `
                 <svg height="24" width="24">
-                  <polyline points="1,23 20,18 5,7 23,1" style="fill:none;stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
+                  <polyline class="layer-icon" points="1,23 20,18 5,7 23,1" style="fill:none;stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
                 </svg>
             `
         };
@@ -834,14 +979,14 @@
             if (pointShape === 'circle') {
                 svgIcon = `
                     <svg height="24" width="24">
-                      <circle cx="12" cy="12" r="7" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
+                      <circle class="layer-icon" cx="12" cy="12" r="7" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
                     </svg>
                 `
             }
             if (pointShape === 'square') {
                 svgIcon = `
                     <svg height="24" width="24">
-                      <rect x="5" y="5" width="14" height="14" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
+                      <rect class="layer-icon" x="5" y="5" width="14" height="14" style="fill:rgb(${fillColor[0]},${fillColor[1]},${fillColor[2]});stroke:rgb(${strokeColor[0]},${strokeColor[1]},${strokeColor[2]});stroke-width:2" />
                     </svg>
                 `
             }
@@ -860,7 +1005,7 @@
                       ${svgGradient}
                     </linearGradient>
                   </defs>
-                  <rect width="24" height="24" fill="url(#${'grad-' + layerCode})" />
+                  <rect class="layer-icon" width="24" height="24" fill="url(#${'grad-' + layerCode})" />
                 </svg>
             `
         };
@@ -940,7 +1085,13 @@
     };
 
     /* Removes a layer from the map */
-    mapRemoveLayer = function(data) {
+    mapRemoveLayer = function(evt) {
+        layerCode = $(this).parents(':eq(3)').attr('id');
+        for (var layerComponent in mapLayers[layerCode]['layer']) {
+            map.removeLayer(mapLayers[layerCode]['layer'][layerComponent]['imageSource']);
+        };
+        delete mapLayers[layerCode];
+        $(this).parents(':eq(3)').remove();
     };
 
     /* Reorders map layers based on workspace list */
@@ -1008,9 +1159,9 @@
 
     /* Uploads HydroShare files */
     uploadHydroshareFiles = function(evt) {
-        var hydroshareId = $(this).parents(':eq(0)').attr('resid')
-        var layerName = currentSearchResults[hydroshareId]['resource_title']
-        resType = currentSearchResults[hydroshareId]['resource_type']
+        var hydroshareId = currentSearchResults[$('.search-results-list').attr('page')]['searchResults'][$('.resource-detail-container').attr('resIndex')]['resource_id']
+        var layerName = currentSearchResults[$('.search-results-list').attr('page')]['searchResults'][$('.resource-detail-container').attr('resIndex')]['resource_title']
+        resType = currentSearchResults[$('.search-results-list').attr('page')]['searchResults'][$('.resource-detail-container').attr('resIndex')]['resource_type']
         if (resType === 'RasterResource') {
             var fileType = "geotiff"
         };
@@ -1018,6 +1169,8 @@
             var fileType = "shapefile"
         };
         var layerCode = generateLayerCode();
+        console.log(currentSearchResults[$('.search-results-list').attr('page')]['searchResults'][$('.resource-detail-container').attr('resIndex')])
+        console.log(layerName)
         var data = new FormData();
         data.append('layerSource', 'hydroshare')
         data.append('hydroshareId', hydroshareId);
@@ -1025,6 +1178,8 @@
         data.append('fileType', fileType);
         data.append('layerName', layerName);
         addLayerLoadingSlide(layerCode, layerName);
+        toggleNavTabs('hsLayer');
+        toggleSearchResultDetails('hsLayer');
         ajaxAddLayer(data)
     };
 
@@ -1199,18 +1354,18 @@
     };
 
     /* Controls toggle between search tab and workspace tab */
-    toggleNavTabs = function() {
+    toggleNavTabs = function(evt) {
         if ($(this).attr('id') === 'nav-pane-search-tab-toggle') {
             $('#workspace-tab-content').hide();
             $('#nav-pane-workspace-tab-toggle').css('background-color', '#D3D3D3');
-            $('#search-tab-content').show();
-            $('#search-tab-content').css('display', 'flex');         
+            $('#search-tab-content').show();         
             $('#nav-pane-search-tab-toggle').css('background-color', '#FFFFFF');
         };
-        if ($(this).attr('id') === 'nav-pane-workspace-tab-toggle') {
+        if ($(this).attr('id') === 'nav-pane-workspace-tab-toggle' || evt === 'hsLayer') {
             $('#workspace-tab-content').show();
             $('#nav-pane-workspace-tab-toggle').css('background-color', '#FFFFFF');
             $('#search-tab-content').hide();
+            $('#workspace-tab-content').css('display', 'flex');
             $('#nav-pane-search-tab-toggle').css('background-color', '#D3D3D3');
         };
     };
@@ -1304,6 +1459,14 @@
     };
 
     toggleLayerSymbologyMenu = function(evt) {
+        if ($(evt.target).hasClass('layer-icon')) {
+            symbologyLayerCode = $(this).parents(':eq(3)').attr('id')
+            $('.workspace-layer-list').sortable("disable")
+            $('.context-menu-wrapper').hide()
+            $(".workspace-layer-container").removeClass('workspace-layer-container-hover')
+            $(".workspace-layer-container:not(#" + symbologyLayerCode + ")").hide()
+            $("#" + symbologyLayerCode).find(".layer-symbology-container").show()
+        }
         if ($(evt.target).hasClass('edit-layer-symbology')) {
             symbologyLayerCode = $(this).parents(':eq(3)').attr('id')
             $('.workspace-layer-list').sortable("disable")
@@ -1313,7 +1476,7 @@
             $("#" + symbologyLayerCode).find(".layer-symbology-container").show()
         };
         if ($(evt.target).hasClass('exit-symbology-button')) {
-        symbologyLayerCode = $(this).parents(':eq(3)').attr('id')
+            symbologyLayerCode = $(this).parents(':eq(3)').attr('id')
             $('.workspace-layer-list').sortable("enable")
             $('.context-menu-wrapper').hide()
             $(".workspace-layer-container").addClass('workspace-layer-container-hover')
@@ -1333,7 +1496,7 @@
     };
 
     updateColorMap = function(evt) {
-        layerCode = $(this).parents(':eq(4)').attr('id');
+        layerCode = $(this).parents(':eq(3)').attr('id');
         layerComponent = 'raster';
         mapLayers[layerCode]['layer'][layerComponent]['symbologyData']['colorMap'] = $(this).val();
         mapLayers[layerCode]['layer'][layerComponent]['rasterSource'].changed(); 
@@ -1397,111 +1560,6 @@
             sldString = getSLDString(layerType, layerWorkspace, layerCode, layerComponent, symbologyData);
             mapLayers[layerCode]['layer'][layerComponent]['layerSource'].updateParams({'SLD_BODY': sldString});
             mapLayers[layerCode]['layer'][layerComponent]['imageSource'].getSource().changed()
-        };
-    };
-
-    appendSearchResultsToList = function(searchResults) {
-        $(".search-results-list").empty();
-        for (var i in searchResults) {
-            currentSearchResults[searchResults[i]['resource_id']] = searchResults[i]
-            var searchResultSlide = `
-                <li id="${searchResults[i]['resource_id']}" class="search-result-container">
-                    <div class="search-result">
-                        <div class="search-result-icon-container">
-                            <img class="search-result-icon" src="/static/hydroshare_gis/images/${searchResults[i]['resource_type']}.png">
-                        </div>
-                        <div class="search-result-name">${searchResults[i]['resource_title']}</div>
-                        <div hidden></div>
-                    </div>
-                </li>
-            `
-            $(".search-results-list").append(searchResultSlide);
-        };
-    };
-
-    ajaxSearchHydroShare = function(data) {
-        $.ajax({
-            url: '/apps/hydroshare-gis/ajax-search-hydroshare/',
-            type: 'POST',
-            headers: {'X-CSRFToken': getCookie('csrftoken')},
-            data: data,
-            dataType: 'json',
-            processData: false,
-            contentType: false,
-            error: function () {
-                console.log("Error")
-            },
-            success: function (response) {
-                if (response['success'] === 'false') {
-                    // call function "addLayerError"
-                } else {
-                    searchResults = response['results']['results']
-                    lastPage = response['results']['last_page']
-                    page = response['results']['page']
-                    console.log(lastPage)
-                    console.log(page)
-                    if (lastPage === 'true') {
-                        $('#search-results-next').prop('disabled', true)
-                    } else {
-                        $('#search-results-next').prop('disabled', false)                    
-                    };
-                    if (parseInt(page) === 1) {
-                        console.log("Disable Previous")
-                        $('#search-results-previous').prop('disabled', true)
-                    } else {
-                        $('#search-results-previous').prop('disabled', false)
-                    };
-                    $('.search-results-list').attr('page', page)
-                    appendSearchResultsToList(searchResults)
-                }
-            }
-        });
-    };
-
-    searchHydroshare = function(evt) {
-        if (evt.keyCode == 13 || evt.type == 'click') {
-            data = new FormData();
-            data.append('searchInput', $('#search-input').val());
-            data.append('page', 1)
-            ajaxSearchHydroShare(data);
-        };
-    };
-
-    changeSearchPage = function(evt) {
-        $('#search-results-next').prop('disabled', true) 
-        $('#search-results-previous').prop('disabled', true)
-        page = parseInt($('.search-results-list').attr('page'))
-        if ($(this).attr('id') === 'search-results-next') {
-            newPage = page + 1
-        };
-        if ($(this).attr('id') === 'search-results-previous') {
-            newPage = page - 1
-        }; 
-        data = new FormData();
-        data.append('searchInput', $('#search-input').val());
-        data.append('page', newPage)
-        ajaxSearchHydroShare(data);
-    };
-
-    toggleSearchResultDetails = function(evt) {
-        if ($(this).hasClass('search-result-container')) {
-            resourceData = currentSearchResults[$(this).attr('id')]
-            console.log(resourceData)
-            $('#detail-resource-name').text(resourceData['resource_title']);
-            $('#detail-resource-creator').text(resourceData['creator']);
-            $('#detail-resource-type').text(resourceData['resource_type']);
-            $('#detail-resource-created').text(resourceData['date_created']);
-            $('#detail-resource-updated').text(resourceData['date_last_updated']);
-            $('#detail-resource-abstract').text(resourceData['abstract']);
-            $('.search-result-details').attr('resid', resourceData['resource_id'])
-            $('.search-results-list').hide();
-            $('.search-results-footer').hide();
-            $('.search-result-details').show();
-        };
-        if ($(this).hasClass('exit-search-result-details')) {
-            $('.search-result-details').hide(); 
-            $('.search-results-list').show();
-            $('.search-results-footer').show();     
         };
     };
 
@@ -1607,9 +1665,9 @@
 
     $(document).on('click', '#upload-file-button', uploadLocalFiles);
 
-    $('.search-bar-container').on('keyup', '.search-bar-input', searchHydroshare)
+    $(document).on('keyup', '.search-bar-input', getHydroShareSearchInput);
 
-    $(document).on('click', '.glyphicon', searchHydroshare);
+    $(document).on('click', '.glyphicon', getHydroShareSearchInput);
 
     $(document).on('click', '#search-results-next', changeSearchPage);
 
@@ -1621,13 +1679,17 @@
 
     $(document).on('click', '.add-hydroshare-resource-to-workspace', uploadHydroshareFiles);
 
+    $(document).on('dblclick', '.layer-icon', toggleLayerSymbologyMenu);
+
+    $(document).on('click', '.remove-layer', mapRemoveLayer);
+
 
     /*****************************************************************************************
      ************************************ INIT FUNCTIONS *************************************
      *****************************************************************************************/
 
     initLayerList();
-    initDetailMap();
+    initPreviewMap();
     initMap();
 
 

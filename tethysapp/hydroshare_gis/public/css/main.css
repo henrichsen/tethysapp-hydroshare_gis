@@ -145,7 +145,7 @@
 }
 
 /* Sets the Initial Active Tab Button Color */
-#nav-pane-workspace-tab-toggle {
+#nav-pane-search-tab-toggle {
     background-color: #FFFFFF;
 }
 
@@ -159,11 +159,11 @@
     overflow: hidden;
     padding-left: 10px;
     padding-right: 10px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
     background-color: #FFFFFF;
     width: 100%;
-    height: 51px;
+    height: 53px;
     border-bottom: 1px solid lightgray;
 }
 
@@ -223,6 +223,10 @@
 /* :::::::::::::::::::::::: Search Tab :::::::::::::::::::::::::: */
 
 #search-tab-content {
+    display: flex;
+}
+
+#workspace-tab-content {
     display: none;
 }
 
@@ -234,17 +238,17 @@
     padding-top: 8px;
     background-color: #FFFFFF;
     width: 100%;
-    height: 51px;
+    height: 53px;
     border-bottom: 1px solid lightgray;
     flex-shrink: 0;
 }
 
 .search-bar-input {
     outline: none;
-    margin: 6px;
+    margin: 5px;
     background-color: whitesmoke;
     border: none;
-    width: 178px;
+    width: 177px;
     font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 
@@ -260,7 +264,7 @@
     /*border-radius: 8px;*/
     border: solid;
     border-color: lightgray;
-    border-width: 0px;
+    border-width: 1px;
     width: 100%;
     background-color: whitesmoke;
 }
@@ -272,8 +276,8 @@
     padding-top: 2px;
     padding-left: 13px;
     padding-right: 13px;
-    margin-top: 6px;
-    margin-bottom: 6px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     border-right: 1px solid;
     border-right-color: gray;
 }
@@ -294,8 +298,8 @@
     padding-top: 2px;
     padding-left: 13px;
     padding-right: 13px;
-    margin-top: 6px;
-    margin-bottom: 6px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .glyphicon-search {
@@ -364,7 +368,15 @@
 }
 
 .search-results-footer {
-    height: 50px;
+    height: 53px;
+    width: 100%;
+    background-color: white;
+    flex-shrink: 0;
+    border-top: 1px solid lightgray;
+}
+
+.search-details-footer {
+    height: 53px;
     width: 100%;
     background-color: white;
     flex-shrink: 0;
