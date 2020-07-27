@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
 from tethys_services.backends.hs_restclient_helper import get_oauth_hs
+
+from tethys_sdk.permissions import login_required
 
 @login_required()
 def home(request):
@@ -42,7 +43,7 @@ def home(request):
                         'type': md['resource_type']
                     })
                 except Exception as e:
-                    print str(e)
+                    print (str(e))
                     continue
 
             userInfo = hs.getUserInfo()
@@ -58,7 +59,7 @@ def home(request):
                             })
 
                 except Exception as e:
-                    print str(e)
+                    print (str(e))
                     continue
 
             context['existing_projects'] = existing_projects
