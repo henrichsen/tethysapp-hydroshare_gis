@@ -1,6 +1,7 @@
 from .model import engine, Base
 from tethys_sdk.services import get_spatial_dataset_engine
-from utilities import get_workspace
+from .utilities import get_workspace
+
 
 def init_hydroshare_gis_layers_db(first_time):
     Base.metadata.create_all(engine)

@@ -4,6 +4,7 @@ from tethys_services.backends.hs_restclient_helper import get_oauth_hs
 
 from tethys_sdk.permissions import login_required
 
+
 @login_required()
 def home(request):
     """
@@ -13,7 +14,7 @@ def home(request):
     """
 
     point_size_options = range(1, 31)
-    stroke_width_options = range(1,16)
+    stroke_width_options = range(1, 16)
     point_shape_options = ['circle', 'square', 'triangle', 'star', 'cross', 'X']
     font_size_options = range(8, 37, 2)
     num_gradient_colors_options = range(2, 9)
@@ -43,7 +44,7 @@ def home(request):
                         'type': md['resource_type']
                     })
                 except Exception as e:
-                    print (str(e))
+                    print(str(e))
                     continue
 
             userInfo = hs.getUserInfo()
@@ -59,7 +60,7 @@ def home(request):
                             })
 
                 except Exception as e:
-                    print (str(e))
+                    print(str(e))
                     continue
 
             context['existing_projects'] = existing_projects

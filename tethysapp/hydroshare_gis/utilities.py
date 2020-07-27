@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.core.files.uploadedfile import UploadedFile
 from tethys_sdk.services import get_spatial_dataset_engine
 from tethys_services.backends.hs_restclient_helper import get_oauth_hs
-from model import Layer
+from .model import Layer
 
 import hs_restclient as hs_r
 import requests
@@ -26,6 +26,7 @@ logger = getLogger('django')
 workspace_id = None
 spatial_dataset_engine = None
 currently_testing = False
+
 
 def get_json_response(response_type, message):
     return JsonResponse({response_type: message})
@@ -611,6 +612,7 @@ def process_res_by_type(hs, res_id, res_type, hs_tempdir):
 
     return return_obj
 
+
 def get_info_from_nongeneric_res_files(res_id, res_type, res_contents_path):
     return_obj = {
         'success': False,
@@ -927,7 +929,6 @@ def check_crs(res_type, fpath):
 def delete_tempfiles(username):
     hs_tempdir = get_hs_tempdir(username)
     os.system('rm -rf %s' % hs_tempdir)
-
 
 
 def save_new_project(hs, project_info, res_title, res_abstract, res_keywords, username):
@@ -1570,6 +1571,7 @@ def extract_band_info_from_file(raster_fpath):
 
     return band_info
 
+
 def check_if_image_pyramid(fpath):
     is_image_pyramid = False
     with zipfile.ZipFile(fpath, 'r') as z:
@@ -1668,12 +1670,14 @@ def add_file_to_res(hs, res_id, fpath):
             else:
                 raise e
 
+
 def remove_layer_from_geoserver(res_id, file_index=None):
     store_id = '{workspace}:{store}'.format(workspace=get_workspace(),
                                             store=get_geoserver_store_id(res_id, file_index))
 
     engine = return_spatial_dataset_engine()
     engine.delete_store(store_id, purge=True, recurse=True, debug=get_debug_val())
+
 
 def lonlat_point_to_geojson(lon, lat):
     return {
@@ -1689,6 +1693,7 @@ def lonlat_point_to_geojson(lon, lat):
             }
         }
     }
+
 
 def get_hs_auth_obj(request):
     return_obj = {

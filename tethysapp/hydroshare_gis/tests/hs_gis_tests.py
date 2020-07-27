@@ -34,7 +34,7 @@ def Test_All_Resources(request):
                 if res['public']:
                     res_count += 1
                     res_id = res['resource_id']
-                    print "Currently testing resource %s of %s: %s" % (res_count, num_resources, res_id)
+                    print("Currently testing resource %s of %s: %s" % (res_count, num_resources, res_id))
                     if res['resource_type'] == 'GenericResource':
                         response = get_res_files_list(hs, res_id)
                         if response['success']:
@@ -57,9 +57,9 @@ def Test_All_Resources(request):
                                         num_files_failed += 1
                                         error_resource_list.append('https://www.hydroshare.org/resource/%s on file %s'
                                                                    % (res_id, res_file))
-                                        print 'ERROR ENCOUNTERED:'
-                                        print 'RES_ID: %s' % res_id
-                                        print 'MESSAGE: %s' % response['message']
+                                        print('ERROR ENCOUNTERED:')
+                                        print('RES_ID: %s' % res_id)
+                                        print('MESSAGE: %s' % response['message'])
                             if num_files_failed == 0:
                                 num_success += 1
                             else:
@@ -79,17 +79,17 @@ def Test_All_Resources(request):
                             else:
                                 num_errors += 1
                                 error_resource_list.append('https://www.hydroshare.org/resource/%s' % res_id)
-                                print 'ERROR ENCOUNTERED:'
-                                print 'RES_ID: %s' % res_id
-                                print 'MESSAGE: %s' % response['message']
+                                print('ERROR ENCOUNTERED:')
+                                print('RES_ID: %s' % res_id)
+                                print('MESSAGE: %s' % response['message'])
             except Exception as e:
                 num_errors += 1
                 error_resource_list.append('https://www.hydroshare.org/resource/%s' % res_id)
-                print 'ERROR ENCOUNTERED:'
-                print 'RES_ID: %s' % res_id
-                print 'MESSAGE: %s' % str(e)
+                print('ERROR ENCOUNTERED:')
+                print('RES_ID: %s' % res_id)
+                print('MESSAGE: %s' % str(e))
 
-            print "%d%% complete" % (res_count * 100 / num_resources)
+            print("%d%% complete" % (res_count * 100 / num_resources))
 
         elapsed = str(timedelta(seconds=time()-start))
 
@@ -118,7 +118,7 @@ def Test_All_Resources(request):
             '\n'.join(error_resource_list)
         )
 
-        print results
+        print(results)
         email_admin('Test Results', custom_msg=results)
         context = {'results': '<br>'.join(results.split('\n'))}
         set_currently_testing(False)
