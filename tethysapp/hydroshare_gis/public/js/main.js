@@ -2040,7 +2040,7 @@
                     }
                     if (!response.success) {
                         if (!message) {
-                            message = 'An unexpected error ocurred while processing the following file: ' + resFileName;
+                            message = 'An unexpected error occurred while processing the following file: ' + resFileName;
                         }
 
                         addLogEntry('danger', message);
@@ -2069,7 +2069,7 @@
                 }
             },
             error: function () {
-                var message = 'An unexpected error ocurred while processing the following file: ' + resFileName;
+                var message = 'An unexpected error occurred while processing the following file: ' + resFileName;
 
                 addLogEntry('danger', message);
 

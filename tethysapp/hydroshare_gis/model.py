@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 from .app import HydroshareGis
 
-engine = HydroshareGis.get_persistent_store_engine('hydroshare_gis_layers')
+engine = HydroshareGis.get_persistent_store_database('hydroshare_gis_layers')
 SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base()
 
@@ -59,9 +59,7 @@ class Layer(Base):
     @staticmethod
     def get_generic_file_layer_by_res_id_and_res_fname(res_id, res_fname):
         session = SessionMaker()
-        generic_file_layer = session.query(Layer)\
-            .filter(Layer.associated_res_id == res_id)\
-            .filter(Layer.associated_file_name == res_fname).first()
+        generic_file_layer = session.query(Layer).filter(Layer.associated_res_id == res_id).filter(Layer.associated_file_name == res_fname).first()
         session.close()
 
         return generic_file_layer

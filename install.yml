@@ -9,8 +9,7 @@ requirements:
   conda:
     channels:
     packages:
-      - django
-      - hs-restclient
+      - hs_restclient
       - xmltodict
       - GDAL
   pip:

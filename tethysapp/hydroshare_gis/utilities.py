@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from django.core.files.uploadedfile import UploadedFile
-from tethys_sdk.services import get_spatial_dataset_engine
 from tethys_services.backends.hs_restclient_helper import get_oauth_hs
 from .model import Layer
 
@@ -20,6 +19,8 @@ from socket import gethostname
 from subprocess import check_output
 from mimetypes import guess_type
 from logging import getLogger
+
+from tethysapp.hydroshare_gis.app import HydroshareGis as app
 
 
 logger = getLogger('django')
@@ -159,7 +160,7 @@ def zip_files(res_files, zip_path):
 def return_spatial_dataset_engine():
     global spatial_dataset_engine
     if spatial_dataset_engine is None:
-        spatial_dataset_engine = get_spatial_dataset_engine(name='default')
+        spatial_dataset_engine = app.get_spatial_dataset_service('default', as_engine=True)
 
     return spatial_dataset_engine
 
@@ -343,6 +344,8 @@ def get_band_info(hs, res_id, res_type, raster_fpath=None):
 
 def get_geoserver_credentials():
     engine = return_spatial_dataset_engine()
+    print(engine.username)
+    print(engine.password)
     return (engine.username, engine.password)
 
 

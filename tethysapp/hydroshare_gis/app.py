@@ -1,5 +1,7 @@
 from tethys_sdk.base import TethysAppBase, url_map_maker
-from tethys_sdk.stores import PersistentStore
+from tethys_sdk.app_settings import PersistentStoreDatabaseSetting, SpatialDatasetServiceSetting
+
+
 
 
 class HydroshareGis(TethysAppBase):
@@ -73,12 +75,28 @@ class HydroshareGis(TethysAppBase):
         return url_maps
 
 
-    def persistent_stores(self):
+    def persistent_store_settings(self):
         """
         Add one or more persistent stores
         """
-        stores = [PersistentStore(name='hydroshare_gis_layers',
-                                  initializer='hydroshare_gis.init_stores.init_hydroshare_gis_layers_db',
-                                  spatial=False)]
+        stores = [PersistentStoreDatabaseSetting(name='hydroshare_gis_layers',
+                                                 initializer='hydroshare_gis.init_stores.init_hydroshare_gis_layers_db',
+                                                 spatial=False,
+                                                 required=True,
+                                                 )]
 
         return stores
+    def spatial_dataset_service_settings(self):
+        """
+        Example spatial_dataset_service_settings method.
+        """
+        sds_settings = (
+            SpatialDatasetServiceSetting(
+                name='default',
+                description='spatial dataset service for app to use',
+                engine=SpatialDatasetServiceSetting.GEOSERVER,
+                required=True,
+            ),
+        )
+
+        return sds_settings
