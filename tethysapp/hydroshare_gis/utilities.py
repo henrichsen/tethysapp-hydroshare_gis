@@ -265,8 +265,9 @@ def extract_site_info_from_time_series(sqlite_fpath):
 
 def extract_site_info_from_hs_metadata(hs, res_id):
     site_info = None
+    print(hs.getScienceMetadataRDF(res_id).strip("b '"))
     try:
-        md_dict = xmltodict.parse(hs.getScienceMetadataRDF(res_id))
+        md_dict = xmltodict.parse(hs.getScienceMetadataRDF(res_id).strip("b '"))
         if len(md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage']) == 1:
             site_info_list = md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage']['dcterms:point']['rdf:value'].split(';')
         else:

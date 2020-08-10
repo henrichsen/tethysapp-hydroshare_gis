@@ -86,6 +86,7 @@ class HydroshareGis(TethysAppBase):
                                                  )]
 
         return stores
+
     def spatial_dataset_service_settings(self):
         """
         Example spatial_dataset_service_settings method.
