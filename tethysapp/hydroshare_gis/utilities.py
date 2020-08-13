@@ -265,9 +265,9 @@ def extract_site_info_from_time_series(sqlite_fpath):
 
 def extract_site_info_from_hs_metadata(hs, res_id):
     site_info = None
-    print(hs.getScienceMetadataRDF(res_id).strip("b '"))
+    print(hs.getScienceMetadataRDF(res_id).strip("b 'n\\")[1])
     try:
-        md_dict = xmltodict.parse(hs.getScienceMetadataRDF(res_id).strip("b '"))
+        md_dict = xmltodict.parse(hs.getScienceMetadataRDF(res_id).strip("b 'n\\"))
         if len(md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage']) == 1:
             site_info_list = md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage']['dcterms:point']['rdf:value'].split(';')
         else:
@@ -468,8 +468,10 @@ def process_nongeneric_res(hs, res_id, res_type=None, res_title=None, username=N
         logger.error(''.join(format_exception(exc_type, exc_value, exc_traceback)))
         logger.error(msg)
         if gethostname() == 'ubuntu':
+            print('1')
             return_obj['message'] = 'An unexpected error ocurred: %s' % msg
         else:
+            print('2')
             return_obj['message'] = 'An unexpected error ocurred. App admin has been notified.'
             if not currently_testing:
                 user_info = hs.getUserInfo()
@@ -746,6 +748,7 @@ def get_hs_res_list(hs):
         return_obj['message'] = 'The HydroShare server appears to be down.'
     except Exception as e:
         logger.error(e)
+        print('3')
         return_obj['message'] = 'An unexpected error ocurred. App admin has been notified.'
         if gethostname() != 'ubuntu' and not currently_testing:
             email_admin('Error Report', traceback=exc_info())
@@ -828,9 +831,9 @@ def check_crs(res_type, fpath):
 
     if res_type == 'RasterResource':
         gdal_info = check_output('gdalinfo %s' % fpath, shell=True)
-        start = 'Coordinate System is:'
+        start = bytes('Coordinate System is:', 'utf-8')
         length = len(start)
-        end = 'Origin ='
+        end = bytes('Origin =', 'utf-8')
         if gdal_info.find(start) == -1:
             return_obj['message'] = message_erroneous_proj
             return_obj['crsWasChanged'] = True
@@ -839,7 +842,7 @@ def check_crs(res_type, fpath):
             return return_obj
         start_index = gdal_info.find(start) + length
         end_index = gdal_info.find(end)
-        crs_raw = gdal_info[start_index:end_index]
+        crs_raw = str(gdal_info[start_index:end_index])
         crs = ''.join(crs_raw.split())
     else:
         with open(fpath) as f:
@@ -1198,8 +1201,10 @@ def get_res_files_list(hs, res_id):
         logger.error(''.join(format_exception(exc_type, exc_value, exc_traceback)))
         logger.error(msg)
         if gethostname() == 'ubuntu':
+            print('4')
             return_obj['message'] = 'An unexpected error ocurred: %s' % msg
         else:
+            print('5')
             return_obj['message'] = 'An unexpected error ocurred. App admin has been notified.'
             if not currently_testing:
                 user_info = hs.getUserInfo()
@@ -1382,8 +1387,10 @@ def process_generic_res_file(hs, res_id, res_file_name, username, file_index=0):
         logger.error(''.join(format_exception(exc_type, exc_value, exc_traceback)))
         logger.error(msg)
         if gethostname() == 'ubuntu':
+            print('6')
             return_obj['message'] = 'An unexpected error ocurred: %s' % msg
         else:
+            print('7')
             return_obj['message'] = 'An unexpected error ocurred. App admin has been notified.'
             if not currently_testing:
                 user_info = hs.getUserInfo()
