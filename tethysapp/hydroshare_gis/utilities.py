@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.core.files.uploadedfile import UploadedFile
 from tethys_services.backends.hs_restclient_helper import get_oauth_hs
 from .model import Layer
-
+import shutil
 import hs_restclient as hs_r
 import requests
 import zipfile
@@ -21,7 +21,6 @@ from mimetypes import guess_type
 from logging import getLogger
 
 from tethysapp.hydroshare_gis.app import HydroshareGis as app
-
 
 logger = getLogger('django')
 workspace_id = None
@@ -200,7 +199,6 @@ def get_layer_md_from_geoserver(store_id, layer_name, res_type):
             except KeyError:
                 extents = json['featureType']['nativeBoundingBox']
 
-
             attributes = json['featureType']['attributes']['attribute']
             attributes_string = ''
             for attribute in attributes:
@@ -265,13 +263,19 @@ def extract_site_info_from_time_series(sqlite_fpath):
 
 def extract_site_info_from_hs_metadata(hs, res_id):
     site_info = None
-    print(hs.getScienceMetadataRDF(res_id).strip("b 'n\\")[1])
     try:
-        md_dict = xmltodict.parse(hs.getScienceMetadataRDF(res_id).strip("b 'n\\"))
+        try:
+            md_dict = xmltodict.parse(hs.getScienceMetadataRDF(res_id).strip(" 'n\\"))
+            print('Yes b')
+        except:
+            md_dict = xmltodict.parse(hs.getScienceMetadataRDF(res_id).strip("b 'n\\"))
+            print('No b')
         if len(md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage']) == 1:
-            site_info_list = md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage']['dcterms:point']['rdf:value'].split(';')
+            site_info_list = md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage']['dcterms:point'][
+                'rdf:value'].split(';')
         else:
-            site_info_list = md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage'][0]['dcterms:point']['rdf:value'].split(';')
+            site_info_list = md_dict['rdf:RDF']['rdf:Description'][0]['dc:coverage'][0]['dcterms:point'][
+                'rdf:value'].split(';')
         lon = None
         lat = None
         projection = None
@@ -334,7 +338,8 @@ def get_band_info(hs, res_id, res_type, raster_fpath=None):
         except KeyError:
             pass
         except Exception as e:
-            logger.error('Unexpected, though not fatal, error occurred in get_band_info while processing res: %s' % res_id)
+            logger.error(
+                'Unexpected, though not fatal, error occurred in get_band_info while processing res: %s' % res_id)
             logger.error(str(e))
 
         if band_info is None and raster_fpath and os.path.exists(raster_fpath):
@@ -375,7 +380,6 @@ def process_local_file(file_list, proj_id, hs, res_type, username, flag_create_r
             add_file_to_res(hs, proj_id, f_path)
 
     tempdir_file_list = os.listdir(hs_tempdir)
-
     if flag_create_resources:
         if res_type == 'GenericResource':
             done_once = False
@@ -408,6 +412,7 @@ def process_local_file(file_list, proj_id, hs, res_type, username, flag_create_r
                                        keywords=str(res_keywords).split(',') if res_keywords else None)
 
     return_obj['results'] = process_tempdir_file_list(tempdir_file_list, hs_tempdir, hs, res_id, res_type, username)
+    print(return_obj['results'])
     return_obj['message'] = ('Resource successfully created and added to project. View HydroShare resource landing page'
                              ' <a href="https://www.hydroshare.org/resource/%s" target="_blank">here</a>.' % res_id)
     return_obj['success'] = True
@@ -717,7 +722,8 @@ def get_hs_res_list(hs):
 
     try:
         valid_res_types = [
-            'GenericResource', 'GeographicFeatureResource', 'RasterResource', 'RefTimeSeriesResource', 'TimeSeriesResource', 
+            'GenericResource', 'GeographicFeatureResource', 'RasterResource', 'RefTimeSeriesResource',
+            'TimeSeriesResource',
             'ScriptResource', 'CompositeResource'
         ]
         for res in hs.getResourceList(types=valid_res_types):
@@ -855,6 +861,9 @@ def check_crs(res_type, fpath):
     }
     crs_is_unknown = True
     flag_unhandled_error = False
+    print('E: '+crs)
+    print('F: ')
+    print(params)
     try:
         while crs_is_unknown:
             r = requests.get(endpoint, params=params)
@@ -887,7 +896,7 @@ def check_crs(res_type, fpath):
                             crs = crs[:rm_indx_start] + crs[rm_indx_end:]
                             if ',' in crs[:-4]:
                                 i = crs.rfind(',')
-                                crs = crs[:i] + crs[i+1:]
+                                crs = crs[:i] + crs[i + 1:]
                             params['terms'] = crs
                         else:
                             flag_unhandled_error = True
@@ -1040,6 +1049,7 @@ def save_project(hs, res_id, project_info):
 
     return return_obj
 
+
 def generate_attribute_table(layer_id, layer_attributes):
     return_obj = {
         'success': False,
@@ -1084,7 +1094,6 @@ def get_features_on_click(params_str):
 
 
 def prepare_result_for_layer_db(result):
-
     result.pop('project_info', None)  # parameter "project_info" not expected in following call
 
     # The values of the following keys, if they are not None, are python object that must converted to strings
@@ -1383,7 +1392,10 @@ def process_generic_res_file(hs, res_id, res_file_name, username, file_index=0):
         return_obj['message'] = 'You are not authorized to access this resource.'
     except Exception as e:
         exc_type, exc_value, exc_traceback = exc_info()
-        msg = e.message if e.message else str(e)
+        if e.message:
+            msg = e.message
+        else:
+            msg = str(e)
         logger.error(''.join(format_exception(exc_type, exc_value, exc_traceback)))
         logger.error(msg)
         if gethostname() == 'ubuntu':
@@ -1512,6 +1524,7 @@ def get_info_from_generic_res_file(hs, res_id, res_file_name, hs_tempdir, file_i
             tif_name = '{name}.tif'.format(name=get_geoserver_store_id(res_id, file_index))
             new_fpath = os.path.join(hs_tempdir, tif_name)
             os.rename(fpath, new_fpath)
+            print('D:'+res_type+', '+new_fpath)
             r = check_crs(res_type, new_fpath)
             return_obj['message'] = r['message'] % res_file_name if r['message'] else None
             if not r['success']:
@@ -1640,12 +1653,15 @@ def process_tempdir_file_list(tempdir_file_list, hs_tempdir, hs, res_id, res_typ
         if is_zip:
             tmpdir_name = 'tmp'
             tmpdir_path = os.path.join(hs_tempdir, tmpdir_name)
+            try:
+                shutil.rmtree(tmpdir_path)
+            except:
+                pass
             f_path = os.path.join(hs_tempdir, f)
             os.mkdir(tmpdir_path)
             os.system('unzip %s -d %s' % (f_path, tmpdir_path))
             tmpdir_file_list = os.listdir(tmpdir_path)
             results += process_tempdir_file_list(tmpdir_file_list, hs_tempdir, hs, res_id, res_type, username)
-
         if should_process_file:
             r = process_generic_res_file(hs, res_id, f, username)
             if r['success']:
