@@ -822,7 +822,7 @@ def email_admin(subject, traceback=None, custom_msg=None):
     )
 
 
-def check_crs(res_type, fpath):
+def check_crs(res_type, fpath): #error
     return_obj = {
         'success': False,
         'message': None,
@@ -840,6 +840,7 @@ def check_crs(res_type, fpath):
         start = bytes('Coordinate System is:', 'utf-8')
         length = len(start)
         end = bytes('Origin =', 'utf-8')
+        print('gdal_info: '+gdal_info.decode('utf-8'))
         if gdal_info.find(start) == -1:
             return_obj['message'] = message_erroneous_proj
             return_obj['crsWasChanged'] = True
@@ -857,15 +858,16 @@ def check_crs(res_type, fpath):
     endpoint = 'http://prj2epsg.org/search.json'
     params = {
         'mode': 'wkt',
-        'terms': crs
+        'terms': crs,
     }
     crs_is_unknown = True
     flag_unhandled_error = False
-    print('E: '+crs)
-    print('F: ')
+    print('crs: '+crs)
+    print('params: BELOW')
     print(params)
     try:
         while crs_is_unknown:
+            print(True)
             r = requests.get(endpoint, params=params)
             if '50' in str(r.status_code):
                 raise Exception
@@ -933,6 +935,7 @@ def check_crs(res_type, fpath):
                     return_obj['success'] = True
                     break
             else:
+                print('continue')
                 params['mode'] = 'keywords'
                 continue
     except Exception as e:
@@ -1287,7 +1290,7 @@ def get_generic_file_layer_from_db(hs, res_id, res_fname, file_index, username):
     return generic_file_layer
 
 
-def process_generic_res_file(hs, res_id, res_file_name, username, file_index=0):
+def process_generic_res_file(hs, res_id, res_file_name, username, file_index=0): #error
     return_obj = {
         'success': False,
         'message': None,
@@ -1321,7 +1324,7 @@ def process_generic_res_file(hs, res_id, res_file_name, username, file_index=0):
 
     try:
 
-        response = get_info_from_generic_res_file(hs, res_id, res_file_name, hs_tempdir, file_index)
+        response = get_info_from_generic_res_file(hs, res_id, res_file_name, hs_tempdir, file_index) #error
         return_obj['message'] = response['message']
         if response['success']:
             results = response['results']
@@ -1415,7 +1418,7 @@ def process_generic_res_file(hs, res_id, res_file_name, username, file_index=0):
     return return_obj
 
 
-def get_info_from_generic_res_file(hs, res_id, res_file_name, hs_tempdir, file_index):
+def get_info_from_generic_res_file(hs, res_id, res_file_name, hs_tempdir, file_index): #error
     return_obj = {
         'success': False,
         'message': None,
@@ -1524,8 +1527,10 @@ def get_info_from_generic_res_file(hs, res_id, res_file_name, hs_tempdir, file_i
             tif_name = '{name}.tif'.format(name=get_geoserver_store_id(res_id, file_index))
             new_fpath = os.path.join(hs_tempdir, tif_name)
             os.rename(fpath, new_fpath)
-            print('D:'+res_type+', '+new_fpath)
-            r = check_crs(res_type, new_fpath)
+            print('res_type, new_fpath:'+res_type+', '+new_fpath)
+            r = check_crs(res_type, new_fpath) #error
+            print('r: BELOW')
+            print(r)
             return_obj['message'] = r['message'] % res_file_name if r['message'] else None
             if not r['success']:
                 return return_obj
